@@ -1,11 +1,17 @@
-package it.unina.dblab.footer;
+package it.unina.dblab.gui.footer;
+
+import it.unina.dblab.HeavenRail;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class FooterContainer extends JPanel {
 
-    public FooterContainer() {
+    private HeavenRail parent;
+
+    public FooterContainer(HeavenRail parent) {
+        this.parent = parent;
+
         this.setBackground(Color.DARK_GRAY);
         this.setPreferredSize(new Dimension(100, 30));
     }
