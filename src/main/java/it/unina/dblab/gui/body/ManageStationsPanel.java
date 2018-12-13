@@ -6,9 +6,9 @@ import java.awt.*;
 public class ManageStationsPanel extends JPanel {
     public static final String NAME = "MANAGE_STATIONS";
 
-    private Container parent;
+    private BodyContainer parent;
 
-    public ManageStationsPanel(Container parent) {
+    public ManageStationsPanel(BodyContainer parent) {
         this.parent = parent;
 
         this.setBackground(Color.WHITE);

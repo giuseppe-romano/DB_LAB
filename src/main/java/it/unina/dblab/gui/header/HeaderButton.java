@@ -5,27 +5,31 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class HeaderButton extends JButton implements MouseListener {
+public class HeaderButton extends JToggleButton implements MouseListener {
     private static final long serialVersionUID = 1L;
 
     private Color circleColor = Color.BLACK;
 
     public HeaderButton(String label) {
         super(label);
-      //  this.setBackground();
-       // setBorder(null);
-        setBorderPainted(false);
+
         setContentAreaFilled(false);
         setOpaque(false);
         setFont(new Font("Candara", Font.PLAIN, 16));
-//        setSize(100, 80);
-//        setPreferredSize(new Dimension(100, 70));
+
         this.addMouseListener(this);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        setBorderPainted(false);
+        setFont(new Font("Candara", Font.PLAIN, 16));
+        if(this.isSelected()) {
+            setBorderPainted(true);
+            setFont(new Font("Candara", Font.BOLD, 18));
+        }
 
         Dimension originalSize = super.getPreferredSize();
         int gap = (int) (originalSize.height * 0.2);
@@ -61,13 +65,11 @@ public class HeaderButton extends JButton implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        setBorderPainted(true);
         setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        setBorderPainted(false);
         setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 }

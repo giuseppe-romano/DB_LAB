@@ -16,15 +16,13 @@ import java.util.List;
 
 public class HeavenRail extends JFrame {
 
-    private  EntityManagerFactory entityManagerFactory;
+    public static EntityManagerFactory entityManagerFactory = Persistence
+            .createEntityManagerFactory("DB_LAB");
 
     private HeavenRail() {
         super("Heaven's Rail Demo Application");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        entityManagerFactory = Persistence
-                .createEntityManagerFactory("DB_LAB");
 
         EntityManager manager = entityManagerFactory.createEntityManager();
 

@@ -33,6 +33,11 @@ public class HeaderContainer extends JPanel implements ActionListener {
         this.add(manageTrainsButton);
         this.add(manageStationsButton);
         this.add(manageRoutesButton);
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(manageTrainsButton);
+        buttonGroup.add(manageStationsButton);
+        buttonGroup.add(manageRoutesButton);
     }
 
     @Override

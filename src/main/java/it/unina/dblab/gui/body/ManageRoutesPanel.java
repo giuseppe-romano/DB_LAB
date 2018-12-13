@@ -6,9 +6,9 @@ import java.awt.*;
 public class ManageRoutesPanel extends JPanel {
     public static final String NAME = "MANAGE_ROUTES";
 
-    private Container parent;
+    private BodyContainer parent;
 
-    public ManageRoutesPanel(Container parent) {
+    public ManageRoutesPanel(BodyContainer parent) {
         this.parent = parent;
 
         this.setBackground(Color.WHITE);
