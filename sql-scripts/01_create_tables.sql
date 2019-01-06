@@ -17,7 +17,7 @@ DROP TABLE CUSTOMERS;
 CREATE TABLE TRAINS (
      ID                 NUMBER PRIMARY KEY,
      CATEGORY           VARCHAR2(256 BYTE) NOT NULL,
-     CODE           	VARCHAR2(64 BYTE),
+     CODE           	VARCHAR2(64 BYTE) NOT NULL,
      NOMINAL_SPEED      NUMBER(5, 2),
      CARRIAGES          NUMBER(2)
 );
@@ -35,7 +35,7 @@ COMMENT ON COLUMN TRAINS.CARRIAGES IS 'The number of carriages attached to the t
 CREATE TABLE STATIONS (
      ID                 NUMBER PRIMARY KEY,
      NAME               VARCHAR2(256 BYTE) NOT NULL,
-     ADDRESS            VARCHAR2(256 BYTE),
+     ADDRESS            VARCHAR2(256 BYTE) NOT NULL,
      TELEPHONE          VARCHAR2(32 BYTE),
      DISABLED_ACCESS    NUMBER(1) DEFAULT 0,
      NUM_PLATFORMS      NUMBER(2),
@@ -59,35 +59,12 @@ COMMENT ON COLUMN STATIONS.TAXI_SERVICE IS 'The flag indicating if there is a ta
 ---------------------------------------------------------------------------------------------------------
 
 
-CREATE TABLE CUSTOMERS (
-     ID                 NUMBER PRIMARY KEY,
-     FIRST_NAME         VARCHAR2(64 BYTE) NOT NULL,
-     LAST_NAME          VARCHAR2(64 BYTE) NOT NULL,
-     BORN_DATE          DATE,
-     EMAIL              VARCHAR2(128 BYTE),
-	 PASSWORD 			VARCHAR2(128 BYTE),
-     
-     CONSTRAINT CUSTOMER_EMAIL_UK
-        UNIQUE (EMAIL)
-);
-/
-COMMENT ON TABLE CUSTOMERS IS 'The table modelling all the customers registered';
-COMMENT ON COLUMN CUSTOMERS.ID IS 'The primary key of the table';
-COMMENT ON COLUMN CUSTOMERS.FIRST_NAME IS 'The customer''s first name';
-COMMENT ON COLUMN CUSTOMERS.LAST_NAME IS 'The customer''s last name';
-COMMENT ON COLUMN CUSTOMERS.BORN_DATE IS 'The customer''s born date';
-COMMENT ON COLUMN CUSTOMERS.EMAIL IS 'The customer''s email';
-COMMENT ON COLUMN CUSTOMERS.PASSWORD IS 'The customer''s MD5 encrypted password';
-/
----------------------------------------------------------------------------------------------------------
-
-
 CREATE TABLE ROUTE_NODES (
      ID                     NUMBER PRIMARY KEY,
      DEPARTURE_STATION_ID   NUMBER NOT NULL,
      ARRIVAL_STATION_ID     NUMBER NOT NULL,
      DISTANCE               NUMBER(5),
-     NEXT_ID				        NUMBER,
+     NEXT_ID				NUMBER,
      
      CONSTRAINT ROUTE_NODES_2_DEP_STATION
         FOREIGN KEY (DEPARTURE_STATION_ID)
@@ -139,6 +116,30 @@ CREATE TABLE TIMETABLE (
 COMMENT ON TABLE TIMETABLE IS 'The table modelling all the routes covered by the railway company';
 /
 
+---------------------------------------------------------------------------------------------------------
+
+
+
+CREATE TABLE CUSTOMERS (
+     ID                 NUMBER PRIMARY KEY,
+     FIRST_NAME         VARCHAR2(64 BYTE) NOT NULL,
+     LAST_NAME          VARCHAR2(64 BYTE) NOT NULL,
+     BORN_DATE          DATE,
+     EMAIL              VARCHAR2(128 BYTE),
+	 PASSWORD 			VARCHAR2(128 BYTE),
+     
+     CONSTRAINT CUSTOMER_EMAIL_UK
+        UNIQUE (EMAIL)
+);
+/
+COMMENT ON TABLE CUSTOMERS IS 'The table modelling all the customers registered';
+COMMENT ON COLUMN CUSTOMERS.ID IS 'The primary key of the table';
+COMMENT ON COLUMN CUSTOMERS.FIRST_NAME IS 'The customer''s first name';
+COMMENT ON COLUMN CUSTOMERS.LAST_NAME IS 'The customer''s last name';
+COMMENT ON COLUMN CUSTOMERS.BORN_DATE IS 'The customer''s born date';
+COMMENT ON COLUMN CUSTOMERS.EMAIL IS 'The customer''s email';
+COMMENT ON COLUMN CUSTOMERS.PASSWORD IS 'The customer''s MD5 encrypted password';
+/
 ---------------------------------------------------------------------------------------------------------
 
 

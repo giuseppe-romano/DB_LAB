@@ -12,7 +12,7 @@ import java.util.List;
 public class TrainsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-        "#ID", "Categoria", "Acronimo", "Velocita' Media", "Numero di Carrozze"
+        "#ID", "Categoria", "Acronimo", "Velocita' Media", "N. Carrozze"
     };
 
     private List<Train> trains;

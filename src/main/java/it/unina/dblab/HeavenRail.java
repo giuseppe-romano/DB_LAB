@@ -16,11 +16,14 @@ import java.util.List;
 
 public class HeavenRail extends JFrame {
 
+    private static HeavenRail instance;
+
     public static EntityManagerFactory entityManagerFactory = Persistence
             .createEntityManagerFactory("DB_LAB");
 
     private HeavenRail() {
         super("Heaven's Rail Demo Application");
+        instance = this;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -67,7 +70,7 @@ public class HeavenRail extends JFrame {
         contentPane.add(new FooterContainer(heavenRail), BorderLayout.PAGE_END);
 
         heavenRail.pack();
-        heavenRail.setSize(650,250);
+        heavenRail.setSize(1250,850);
         heavenRail.setVisible(true);
     }
 
@@ -90,5 +93,9 @@ public class HeavenRail extends JFrame {
         assert c instanceof FooterContainer;
 
         return (FooterContainer)c;
+    }
+
+    public static JFrame getFrame() {
+        return instance;
     }
 }
