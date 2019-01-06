@@ -4,7 +4,9 @@ DROP TABLE TIMETABLE CASCADE CONSTRAINTS;
 /
 DROP TABLE TICKET_DEFINITIONS CASCADE CONSTRAINTS;
 /
-DROP TABLE ROUTE_NODES CASCADE CONSTRAINTS;
+DROP TABLE ROUTES CASCADE CONSTRAINTS;
+/
+DROP TABLE ROUTE_SEGMENTS CASCADE CONSTRAINTS;
 /
 DROP TABLE TRAINS;
 /
@@ -59,45 +61,52 @@ COMMENT ON COLUMN STATIONS.TAXI_SERVICE IS 'The flag indicating if there is a ta
 ---------------------------------------------------------------------------------------------------------
 
 
-CREATE TABLE ROUTE_NODES (
+CREATE TABLE ROUTE_SEGMENTS (
      ID                     NUMBER PRIMARY KEY,
      DEPARTURE_STATION_ID   NUMBER NOT NULL,
      ARRIVAL_STATION_ID     NUMBER NOT NULL,
      DISTANCE               NUMBER(5),
-     NEXT_ID				NUMBER,
      
-     CONSTRAINT ROUTE_NODES_2_DEP_STATION
+     CONSTRAINT ROUTE_SEGMENTS_2_DEP_STATION
         FOREIGN KEY (DEPARTURE_STATION_ID)
         REFERENCES STATIONS (ID),
         
-     CONSTRAINT ROUTE_NODES_2_ARR_STATION
+     CONSTRAINT ROUTE_SEGMENTS_2_ARR_STATION
         FOREIGN KEY (ARRIVAL_STATION_ID)
         REFERENCES STATIONS (ID),
-		
-	 CONSTRAINT ROUTE_NODES_2_NEXT_NODE
-        FOREIGN KEY (NEXT_ID)
-        REFERENCES ROUTE_NODES (ID),
-		
-	 CONSTRAINT ROUTE_NODES_CK_ID_EQ_NEXT_ID CHECK (ID <> NEXT_ID),
-   CONSTRAINT ROUTE_NODES_CK_DEP_ARR_ST CHECK (DEPARTURE_STATION_ID <> ARRIVAL_STATION_ID),
-	 
-	 CONSTRAINT ROUTE_NODES_UK
-        UNIQUE (DEPARTURE_STATION_ID, ARRIVAL_STATION_ID, NEXT_ID)
+				
+     CONSTRAINT ROUTE_SEGMENTS_CK_DEP_ARR_ST CHECK (DEPARTURE_STATION_ID <> ARRIVAL_STATION_ID)
 );
 /
-COMMENT ON TABLE ROUTE_NODES IS 'The table modelling all the routes covered by the railway company. Each route node is a segment connecting two single stations.';
-COMMENT ON COLUMN ROUTE_NODES.ID IS 'The primary key of the table.';
-COMMENT ON COLUMN ROUTE_NODES.DEPARTURE_STATION_ID IS 'The departure station id. It is the starting point of the route node.';
-COMMENT ON COLUMN ROUTE_NODES.ARRIVAL_STATION_ID IS 'The arrival station id. It is the end point of the route node.';
-COMMENT ON COLUMN ROUTE_NODES.DISTANCE IS 'The distance between the two stations. It is expressed in kilometers.';
-COMMENT ON COLUMN ROUTE_NODES.NEXT_ID IS 'The id of the next route.';
+COMMENT ON TABLE ROUTE_SEGMENTS IS 'The table modelling all the routes covered by the railway company. Each route node is a segment connecting two single stations.';
+COMMENT ON COLUMN ROUTE_SEGMENTS.ID IS 'The primary key of the table.';
+COMMENT ON COLUMN ROUTE_SEGMENTS.DEPARTURE_STATION_ID IS 'The departure station id. It is the starting point of the route node.';
+COMMENT ON COLUMN ROUTE_SEGMENTS.ARRIVAL_STATION_ID IS 'The arrival station id. It is the end point of the route node.';
+COMMENT ON COLUMN ROUTE_SEGMENTS.DISTANCE IS 'The distance between the two stations. It is expressed in kilometers.';
 /
 ---------------------------------------------------------------------------------------------------------
 
+CREATE TABLE ROUTES (
+     ID                     NUMBER PRIMARY KEY,
+     ROUTE_SEGMENT_ID       NUMBER NOT NULL,
+     STOPS_AT_ARRIVAL       NUMBER(1) DEFAULT 0,
+     NEXT_ID				NUMBER,
+     
+     CONSTRAINT ROUTES_2_ROUTE_SEGMENTS
+        FOREIGN KEY (ROUTE_SEGMENT_ID)
+        REFERENCES ROUTE_SEGMENTS (ID),
+		
+	 CONSTRAINT ROUTES_2_NEXT_DEF
+        FOREIGN KEY (NEXT_ID)
+        REFERENCES ROUTES (ID)
+);
+/
+
+----------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE TIMETABLE (
      TRAIN_ID               NUMBER NOT NULL,
-     ROUTE_NODE_ID          NUMBER NOT NULL,
+     ROUTE_ID               NUMBER NOT NULL,
      DEPARTURE_TIME         TIMESTAMP NOT NULL,
      ARRIVAL_TIME           TIMESTAMP NOT NULL,
      WEEK_DAY               NUMBER(1),
@@ -106,9 +115,9 @@ CREATE TABLE TIMETABLE (
         FOREIGN KEY (TRAIN_ID)
         REFERENCES TRAINS (ID),
         
-     CONSTRAINT TIMETABLE_2_ROUTE_NODES
-        FOREIGN KEY (ROUTE_NODE_ID)
-        REFERENCES ROUTE_NODES (ID),
+     CONSTRAINT TIMETABLE_2_ROUTES
+        FOREIGN KEY (ROUTE_ID)
+        REFERENCES ROUTES (ID),
 		
 	 CONSTRAINT TIMETABLE_WEEK_DAY CHECK (WEEK_DAY IN (1, 7))
 );
@@ -151,7 +160,7 @@ CREATE TABLE TICKET_DEFINITIONS (
      
      CONSTRAINT TICKET_DEF_2_ROUTE_DEFS
         FOREIGN KEY (ROUTE_ID)
-        REFERENCES ROUTE_NODES (ID)
+        REFERENCES ROUTES (ID)
 );
 /
 COMMENT ON TABLE TICKET_DEFINITIONS IS 'The table modelling all the routes covered by the railway company';
