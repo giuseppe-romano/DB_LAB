@@ -1,16 +1,14 @@
 package it.unina.dblab.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "TRAINS")
 public class Train implements Serializable {
     @Id
+    @SequenceGenerator(name="train_generator", sequenceName = "TRAINS_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "train_generator")
     @Column(name = "ID", unique = true)
     private int id;
 
@@ -21,7 +19,7 @@ public class Train implements Serializable {
     private String code;
 
     @Column(name = "NOMINAL_SPEED")
-    private BigDecimal nominalSpeed;
+    private Integer nominalSpeed;
 
     @Column(name = "CARRIAGES")
     private Integer carriages;
@@ -50,11 +48,11 @@ public class Train implements Serializable {
         this.code = code;
     }
 
-    public BigDecimal getNominalSpeed() {
+    public Integer getNominalSpeed() {
         return nominalSpeed;
     }
 
-    public void setNominalSpeed(BigDecimal nominalSpeed) {
+    public void setNominalSpeed(Integer nominalSpeed) {
         this.nominalSpeed = nominalSpeed;
     }
 

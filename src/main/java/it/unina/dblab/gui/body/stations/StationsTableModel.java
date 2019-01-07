@@ -1,7 +1,7 @@
-package it.unina.dblab.gui.body.trains;
+package it.unina.dblab.gui.body.stations;
 
 import it.unina.dblab.HeavenRail;
-import it.unina.dblab.models.Train;
+import it.unina.dblab.models.Station;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -9,15 +9,15 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.util.List;
 
-public class TrainsTableModel implements TableModel {
+public class StationsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-        "#ID", "Categoria", "Codice", "Velocita' Nominale", "N. Carrozze"
+            "#ID", "Nome", "Indirizzo", "N. Telefono", "N. piattaforme", "Acc. Disabili", "Ristorante", "Servizio Taxi"
     };
 
-    private List<Train> trains;
+    private List<Station> stations;
 
-    public TrainsTableModel() {
+    public StationsTableModel() {
         this.reload();
     }
 
@@ -34,8 +34,8 @@ public class TrainsTableModel implements TableModel {
             transaction.begin();
 
             // Get a List of Trains
-            trains = manager.createQuery("SELECT s FROM it.unina.dblab.models.Train s",
-                    Train.class).getResultList();
+            stations = manager.createQuery("SELECT s FROM it.unina.dblab.models.Station s",
+                    Station.class).getResultList();
 
             // Commit the transaction
             transaction.commit();
@@ -51,7 +51,7 @@ public class TrainsTableModel implements TableModel {
 
     @Override
     public int getRowCount() {
-        return this.trains.size();
+        return this.stations.size();
     }
 
     @Override
@@ -68,15 +68,15 @@ public class TrainsTableModel implements TableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
                 return Integer.class;
             case 1:
-                return String.class;
             case 2:
-                return String.class;
             case 3:
-                return Double.class;
-            case 4:
-                return Integer.class;
+                return String.class;
         }
         return null;
     }
@@ -88,18 +88,24 @@ public class TrainsTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Train train = this.trains.get(rowIndex);
+        Station station = this.stations.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return train.getId();
+                return station.getId();
             case 1:
-                return train.getCategory();
+                return station.getName();
             case 2:
-                return train.getCode();
+                return station.getAddress();
             case 3:
-                return train.getNominalSpeed();
+                return station.getTelephone();
             case 4:
-                return train.getCarriages();
+                return station.getNumberOfPlatforms();
+            case 5:
+                return station.getDisabledAccess();
+            case 6:
+                return station.getRestaurant();
+            case 7:
+                return station.getTaxiService();
         }
         return null;
     }
@@ -119,7 +125,7 @@ public class TrainsTableModel implements TableModel {
 
     }
 
-    public Train getEntityAt(int rowIndex) {
-        return this.trains.get(rowIndex);
+    public Station getEntityAt(int rowIndex) {
+        return this.stations.get(rowIndex);
     }
 }

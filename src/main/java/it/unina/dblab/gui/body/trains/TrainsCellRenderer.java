@@ -18,23 +18,24 @@ public class TrainsCellRenderer implements TableCellRenderer {
                 label.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
                 break;
             case 1:
-                //column Acronimo
+                //column Codice
                 break;
             case 2:
-                //column Velocità
+                //column Velocità Nominale
                 break;
             case 3:
                 label.setText(value + " Km/h");
                 label.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
                 break;
             case 4:
-                //column Carrozze
+                //column N. Carrozze
                 label.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
                 break;
         }
 
         if (isSelected) {
-            label.setBackground(new Color(217, 222, 112, 255));
+            label.setBackground(new Color(33, 58, 255, 255));
+            label.setForeground(Color.WHITE);
             label.setOpaque(true);
         }
 

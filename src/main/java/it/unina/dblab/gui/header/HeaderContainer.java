@@ -15,9 +15,9 @@ public class HeaderContainer extends JPanel implements ActionListener {
 
     private HeavenRail parent;
 
-    private HeaderButton manageTrainsButton = new HeaderButton("Manage Trains");
-    private HeaderButton manageStationsButton = new HeaderButton("Manage Stations");
-    private HeaderButton manageRoutesButton = new HeaderButton("Manage Routes");
+    private HeaderButton manageTrainsButton = new HeaderButton("Gestisci Treni");
+    private HeaderButton manageStationsButton = new HeaderButton("Gestisci Stazioni");
+    private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Percorsi");
 
     public HeaderContainer(HeavenRail parent) {
         this.parent = parent;
@@ -38,6 +38,8 @@ public class HeaderContainer extends JPanel implements ActionListener {
         buttonGroup.add(manageTrainsButton);
         buttonGroup.add(manageStationsButton);
         buttonGroup.add(manageRoutesButton);
+
+        manageTrainsButton.setSelected(true);
     }
 
     @Override
