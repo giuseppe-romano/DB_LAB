@@ -5,12 +5,12 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "TRAINS")
-public class Train implements Serializable {
+public class Train implements Serializable, JpaEntity {
     @Id
     @SequenceGenerator(name="train_generator", sequenceName = "TRAINS_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "train_generator")
     @Column(name = "ID", unique = true)
-    private int id;
+    private Integer id;
 
     @Column(name = "CATEGORY", nullable = false)
     private String category;
@@ -24,11 +24,11 @@ public class Train implements Serializable {
     @Column(name = "CARRIAGES")
     private Integer carriages;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

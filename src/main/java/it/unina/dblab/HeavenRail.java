@@ -4,8 +4,6 @@ import it.unina.dblab.gui.body.BodyContainer;
 import it.unina.dblab.gui.footer.FooterContainer;
 import it.unina.dblab.gui.header.HeaderContainer;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,8 +12,6 @@ public class HeavenRail extends JFrame {
 
     private static HeavenRail instance;
 
-    public static EntityManagerFactory entityManagerFactory = Persistence
-            .createEntityManagerFactory("DB_LAB");
 
     private HeavenRail() {
         super("Heaven's Rail Demo Application");

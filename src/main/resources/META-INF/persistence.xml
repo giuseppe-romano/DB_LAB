@@ -8,6 +8,7 @@
         <!-- Entity classes -->
         <class>it.unina.dblab.models.Train</class>
         <class>it.unina.dblab.models.Station</class>
+        <class>it.unina.dblab.models.RouteSegment</class>
         <properties>
             <!-- The JDBC driver of your database -->
             <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver" />

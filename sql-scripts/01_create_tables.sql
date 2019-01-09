@@ -78,7 +78,7 @@ CREATE TABLE ROUTE_SEGMENTS (
      CONSTRAINT ROUTE_SEGMENTS_CK_DEP_ARR_ST CHECK (DEPARTURE_STATION_ID <> ARRIVAL_STATION_ID)
 );
 /
-COMMENT ON TABLE ROUTE_SEGMENTS IS 'The table modelling all the routes covered by the railway company. Each route node is a segment connecting two single stations.';
+COMMENT ON TABLE ROUTE_SEGMENTS IS 'The table modelling a segment connecting two single stations in one way (one direction only).';
 COMMENT ON COLUMN ROUTE_SEGMENTS.ID IS 'The primary key of the table.';
 COMMENT ON COLUMN ROUTE_SEGMENTS.DEPARTURE_STATION_ID IS 'The departure station id. It is the starting point of the route node.';
 COMMENT ON COLUMN ROUTE_SEGMENTS.ARRIVAL_STATION_ID IS 'The arrival station id. It is the end point of the route node.';

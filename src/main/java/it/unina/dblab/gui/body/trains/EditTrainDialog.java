@@ -1,11 +1,10 @@
 package it.unina.dblab.gui.body.trains;
 
 import it.unina.dblab.HeavenRail;
+import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.Train;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -26,7 +25,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
     JButton cancelButton;
 
     public EditTrainDialog(Train trainModel) {
-        super(HeavenRail.getFrame(), "Aggiungi Nuovo Treno");
+        super(HeavenRail.getFrame(), (trainModel.getId() != null ? "Modifica " : "Aggiungi Nuovo ") + "Treno");
         this.trainModel = trainModel;
 
         this.setModal(true);
@@ -99,7 +98,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        addButton = new JButton(this.trainModel.getId() > 0 ? "Modifica" : "Aggiungi");
+        addButton = new JButton(this.trainModel.getId() != null ? "Modifica" : "Aggiungi");
         addButton.setEnabled(!this.trainModel.getCategory().isEmpty() &&
                 !this.trainModel.getCode().isEmpty() &&
                 this.trainModel.getNominalSpeed() > 0 &&
@@ -135,28 +134,8 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == addButton) {
-            EntityManager manager = HeavenRail.entityManagerFactory.createEntityManager();
-            EntityTransaction transaction = null;
-
-            try {
-                // Get a transaction
-                transaction = manager.getTransaction();
-                // Begin the transaction
-                transaction.begin();
-
-                manager.merge(this.trainModel);
-
-                // Commit the transaction
-                transaction.commit();
-            } catch (Exception ex) {
-                // If there are any exceptions, roll back the changes
-                if (transaction != null) {
-                    transaction.rollback();
-                }
-                // Print the Exception
-                ex.printStackTrace();
-            }
+        if (e.getSource() == addButton) {
+            DatabaseUtil.mergeEntity(this.trainModel);
         }
         this.setVisible(false);
     }

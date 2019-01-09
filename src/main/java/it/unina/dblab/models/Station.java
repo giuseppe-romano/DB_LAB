@@ -5,12 +5,12 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "STATIONS")
-public class Station implements Serializable {
+public class Station implements Serializable, JpaEntity {
     @Id
     @SequenceGenerator(name="station_generator", sequenceName = "STATIONS_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "station_generator")
     @Column(name = "ID", unique = true)
-    private int id;
+    private Integer id;
 
     @Column(name = "NAME", nullable = false)
     private String name;
@@ -22,22 +22,22 @@ public class Station implements Serializable {
     private String telephone;
 
     @Column(name = "DISABLED_ACCESS")
-    private Boolean disabledAccess;
+    private boolean disabledAccess;
 
     @Column(name = "NUM_PLATFORMS")
     private Integer numberOfPlatforms;
 
     @Column(name = "RESTAURANT")
-    private Boolean restaurant;
+    private boolean restaurant;
 
     @Column(name = "TAXI_SERVICE")
-    private Boolean taxiService;
+    private boolean taxiService;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -65,11 +65,11 @@ public class Station implements Serializable {
         this.telephone = telephone;
     }
 
-    public Boolean getDisabledAccess() {
+    public boolean getDisabledAccess() {
         return disabledAccess;
     }
 
-    public void setDisabledAccess(Boolean disabledAccess) {
+    public void setDisabledAccess(boolean disabledAccess) {
         this.disabledAccess = disabledAccess;
     }
 
@@ -81,19 +81,19 @@ public class Station implements Serializable {
         this.numberOfPlatforms = numberOfPlatforms;
     }
 
-    public Boolean getRestaurant() {
+    public boolean getRestaurant() {
         return restaurant;
     }
 
-    public void setRestaurant(Boolean restaurant) {
+    public void setRestaurant(boolean restaurant) {
         this.restaurant = restaurant;
     }
 
-    public Boolean getTaxiService() {
+    public boolean getTaxiService() {
         return taxiService;
     }
 
-    public void setTaxiService(Boolean taxiService) {
+    public void setTaxiService(boolean taxiService) {
         this.taxiService = taxiService;
     }
 }

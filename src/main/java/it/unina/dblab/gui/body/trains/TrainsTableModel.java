@@ -1,10 +1,8 @@
 package it.unina.dblab.gui.body.trains;
 
-import it.unina.dblab.HeavenRail;
+import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Train;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
 public class TrainsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-        "#ID", "Categoria", "Codice", "Velocita' Nominale", "N. Carrozze"
+            "#ID", "Categoria", "Codice", "Velocita' Nominale", "N. Carrozze"
     };
 
     private List<Train> trains;
@@ -22,31 +20,7 @@ public class TrainsTableModel implements TableModel {
     }
 
     public void reload() {
-
-        EntityManager manager = HeavenRail.entityManagerFactory.createEntityManager();
-
-        EntityTransaction transaction = null;
-
-        try {
-            // Get a transaction
-            transaction = manager.getTransaction();
-            // Begin the transaction
-            transaction.begin();
-
-            // Get a List of Trains
-            trains = manager.createQuery("SELECT s FROM it.unina.dblab.models.Train s",
-                    Train.class).getResultList();
-
-            // Commit the transaction
-            transaction.commit();
-        } catch (Exception ex) {
-            // If there are any exceptions, roll back the changes
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            // Print the Exception
-            ex.printStackTrace();
-        }
+        trains = DatabaseUtil.listEntities(Train.class);
     }
 
     @Override

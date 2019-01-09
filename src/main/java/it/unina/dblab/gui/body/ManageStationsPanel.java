@@ -1,14 +1,11 @@
 package it.unina.dblab.gui.body;
 
-import it.unina.dblab.HeavenRail;
 import it.unina.dblab.gui.body.stations.EditStationDialog;
 import it.unina.dblab.gui.body.stations.StationsCellRenderer;
 import it.unina.dblab.gui.body.stations.StationsTableModel;
-import it.unina.dblab.gui.body.trains.TrainsTableModel;
+import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Station;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -121,34 +118,17 @@ public class ManageStationsPanel extends JPanel {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                 } else {
                     stationsTable.clearSelection();
-                    EntityManager manager = HeavenRail.entityManagerFactory.createEntityManager();
-                    EntityTransaction transaction = null;
 
                     Station stationModel = ((StationsTableModel) stationsTable.getModel()).getEntityAt(selectedRow);
 
                     try {
-                        // Get a transaction
-                        transaction = manager.getTransaction();
-                        // Begin the transaction
-                        transaction.begin();
-                        stationModel = manager.find(Station.class, stationModel.getId());
-                        manager.remove(stationModel);
-
-                        // Commit the transaction
-                        transaction.commit();
+                        DatabaseUtil.removeEntity(stationModel);
 
                         ((StationsTableModel) stationsTable.getModel()).reload();
                         stationsTable.revalidate();
                         stationsTable.repaint();
 
                     } catch (Exception ex) {
-                        // If there are any exceptions, roll back the changes
-                        if (transaction != null) {
-                            transaction.rollback();
-                        }
-                        // Print the Exception
-                        ex.printStackTrace();
-
                         JOptionPane.showMessageDialog(parent, ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
                     }
                 }

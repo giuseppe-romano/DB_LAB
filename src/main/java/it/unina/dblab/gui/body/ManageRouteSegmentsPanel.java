@@ -1,10 +1,10 @@
 package it.unina.dblab.gui.body;
 
-import it.unina.dblab.gui.body.trains.EditTrainDialog;
-import it.unina.dblab.gui.body.trains.TrainsCellRenderer;
-import it.unina.dblab.gui.body.trains.TrainsTableModel;
+import it.unina.dblab.gui.body.routes.EditRouteSegmentDialog;
+import it.unina.dblab.gui.body.routes.RouteSegmentsCellRenderer;
+import it.unina.dblab.gui.body.routes.RouteSegmentsTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
-import it.unina.dblab.models.Train;
+import it.unina.dblab.models.RouteSegment;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -15,14 +15,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-public class ManageTrainsPanel extends JPanel {
-    public static final String NAME = "MANAGE_TRAINS";
+public class ManageRouteSegmentsPanel extends JPanel {
+    public static final String NAME = "MANAGE_ROUTES";
 
     private BodyContainer parent;
 
-    private JTable trainsTable;
+    private JTable routeSegmentsTable;
 
-    public ManageTrainsPanel(BodyContainer parent) {
+    public ManageRouteSegmentsPanel(BodyContainer parent) {
         this.parent = parent;
 
         this.setBackground(Color.WHITE);
@@ -30,7 +30,7 @@ public class ManageTrainsPanel extends JPanel {
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
-        JLabel titleLabel = new JLabel("Gestione dei Treni");
+        JLabel titleLabel = new JLabel("Gestione dei Segmenti");
         titlePanel.setBackground(Color.WHITE);
 
         titleLabel.setFont(new Font("Candara", Font.PLAIN, 26));
@@ -40,7 +40,6 @@ public class ManageTrainsPanel extends JPanel {
 
         this.add(createLeftMenu(), BorderLayout.LINE_START);
         this.add(createTablePanel(), BorderLayout.CENTER);
-
     }
 
     private JPanel createLeftMenu() {
@@ -49,60 +48,56 @@ public class ManageTrainsPanel extends JPanel {
         panel.setBackground(new Color(211, 212, 222, 255));
         panel.setLayout(new GridLayout(10, 1));
 
-        LeftMenuButton addNew = new LeftMenuButton("Aggiungi Nuovo");
-        addNew.addActionListener(new ActionListener() {
+        LeftMenuButton addNewSegment = new LeftMenuButton("Aggiungi Nuovo");
+        addNewSegment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // create a dialog Box
-                Train trainModel = new Train();
-                trainModel.setNominalSpeed(150);
-                trainModel.setCarriages(1);
-                trainModel.setCategory("");
-                trainModel.setCode("");
+                RouteSegment routeSegmentModel = new RouteSegment();
 
-                JDialog dialog = new EditTrainDialog(trainModel);
+                JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
                 dialog.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
-                        ((TrainsTableModel) trainsTable.getModel()).reload();
-                        trainsTable.revalidate();
-                        trainsTable.repaint();
+                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                        routeSegmentsTable.revalidate();
+                        routeSegmentsTable.repaint();
                     }
                 });
                 // setsize of dialog
                 dialog.pack();
-                dialog.setSize(400, 220);
+                dialog.setSize(450, 300);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
             }
         });
-        panel.add(addNew);
+        panel.add(addNewSegment);
 
         LeftMenuButton modify = new LeftMenuButton("Modifica");
         modify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = trainsTable.getSelectedRow();
+                int selectedRow = routeSegmentsTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da modificare!");
                 } else {
-                    Train trainModel = ((TrainsTableModel) trainsTable.getModel()).getEntityAt(selectedRow);
+                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
                     // create a dialog Box
-                    JDialog dialog = new EditTrainDialog(trainModel);
+                    JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
                     dialog.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ((TrainsTableModel) trainsTable.getModel()).reload();
-                            trainsTable.revalidate();
-                            trainsTable.repaint();
+                            ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                            routeSegmentsTable.revalidate();
+                            routeSegmentsTable.repaint();
                         }
                     });
                     // setsize of dialog
                     dialog.pack();
-                    dialog.setSize(400, 220);
+                    dialog.setSize(450, 300);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);
@@ -115,20 +110,20 @@ public class ManageTrainsPanel extends JPanel {
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = trainsTable.getSelectedRow();
+                int selectedRow = routeSegmentsTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                 } else {
-                    trainsTable.clearSelection();
+                    routeSegmentsTable.clearSelection();
 
-                    Train trainModel = ((TrainsTableModel) trainsTable.getModel()).getEntityAt(selectedRow);
+                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
 
                     try {
-                        DatabaseUtil.removeEntity(trainModel);
+                        DatabaseUtil.removeEntity(routeSegmentModel);
 
-                        ((TrainsTableModel) trainsTable.getModel()).reload();
-                        trainsTable.revalidate();
-                        trainsTable.repaint();
+                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                        routeSegmentsTable.revalidate();
+                        routeSegmentsTable.repaint();
 
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(parent, ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
@@ -147,44 +142,37 @@ public class ManageTrainsPanel extends JPanel {
         tablePanel.setBackground(color1);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
-        trainsTable = new JTable(new TrainsTableModel());
-        trainsTable.setOpaque(false);
-        trainsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
-        trainsTable.setFillsViewportHeight(true);
-        trainsTable.setRowHeight(35);
-        trainsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        routeSegmentsTable = new JTable(new RouteSegmentsTableModel());
+        routeSegmentsTable.setOpaque(false);
+        routeSegmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        routeSegmentsTable.setFillsViewportHeight(true);
+        routeSegmentsTable.setRowHeight(35);
+        routeSegmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        TableCellRenderer cellRenderer = new TrainsCellRenderer();
+        TableCellRenderer cellRenderer = new RouteSegmentsCellRenderer();
         //column ID
-        TableColumn col = trainsTable.getColumnModel().getColumn(0);
+        TableColumn col = routeSegmentsTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(30);
         col.setMaxWidth(30);
 
-        //column Categoria
-        col = trainsTable.getColumnModel().getColumn(1);
+        //column Stazione di partenza
+        col = routeSegmentsTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
-        col.setMinWidth(300);
+        col.setMinWidth(150);
 
-        //column Acronimo
-        col = trainsTable.getColumnModel().getColumn(2);
+        //column Stazione di arrivo
+        col = routeSegmentsTable.getColumnModel().getColumn(2);
         col.setCellRenderer(cellRenderer);
-        col.setMinWidth(100);
-        col.setMaxWidth(100);
+        col.setMinWidth(150);
 
-        //column Velocità
-        col = trainsTable.getColumnModel().getColumn(3);
+        //column Distanza
+        col = routeSegmentsTable.getColumnModel().getColumn(3);
         col.setCellRenderer(cellRenderer);
-        col.setMinWidth(170);
-        col.setMaxWidth(170);
+        col.setMinWidth(110);
+        col.setMaxWidth(110);
 
-        //column Carrozze
-        col = trainsTable.getColumnModel().getColumn(4);
-        col.setCellRenderer(cellRenderer);
-        col.setMinWidth(130);
-        col.setMaxWidth(130);
-
-        JScrollPane scrollPane = new JScrollPane(trainsTable);
+        JScrollPane scrollPane = new JScrollPane(routeSegmentsTable);
         tablePanel.add(scrollPane);
 
         return tablePanel;

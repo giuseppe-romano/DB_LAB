@@ -2,7 +2,7 @@ package it.unina.dblab.gui.header;
 
 import it.unina.dblab.HeavenRail;
 import it.unina.dblab.gui.body.BodyContainer;
-import it.unina.dblab.gui.body.ManageRoutesPanel;
+import it.unina.dblab.gui.body.ManageRouteSegmentsPanel;
 import it.unina.dblab.gui.body.ManageStationsPanel;
 import it.unina.dblab.gui.body.ManageTrainsPanel;
 
@@ -17,7 +17,7 @@ public class HeaderContainer extends JPanel implements ActionListener {
 
     private HeaderButton manageTrainsButton = new HeaderButton("Gestisci Treni");
     private HeaderButton manageStationsButton = new HeaderButton("Gestisci Stazioni");
-    private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Percorsi");
+    private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Segmenti");
 
     public HeaderContainer(HeavenRail parent) {
         this.parent = parent;
@@ -66,7 +66,7 @@ public class HeaderContainer extends JPanel implements ActionListener {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageStationsPanel.NAME);
         }
         else if(e.getSource() == manageRoutesButton) {
-            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRoutesPanel.NAME);
+            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRouteSegmentsPanel.NAME);
         }
     }
 

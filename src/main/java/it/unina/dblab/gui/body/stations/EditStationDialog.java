@@ -1,11 +1,10 @@
 package it.unina.dblab.gui.body.stations;
 
 import it.unina.dblab.HeavenRail;
+import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.Station;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -31,7 +30,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
     private JButton cancelButton;
 
     public EditStationDialog(Station stationModel) {
-        super(HeavenRail.getFrame(), "Aggiungi Nuova Stazione");
+        super(HeavenRail.getFrame(), (stationModel.getId() != null ? "Modifica " : "Aggiungi Nuova ") + "Stazione");
         this.stationModel = stationModel;
 
         this.setModal(true);
@@ -120,7 +119,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        addButton = new JButton(this.stationModel.getId() > 0 ? "Modifica" : "Aggiungi");
+        addButton = new JButton(this.stationModel.getId() != null ? "Modifica" : "Aggiungi");
         addButton.setEnabled(!this.stationModel.getName().isEmpty() &&
                 !this.stationModel.getAddress().isEmpty() &&
                 !this.stationModel.getTelephone().isEmpty() &&
@@ -160,27 +159,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addButton) {
-            EntityManager manager = HeavenRail.entityManagerFactory.createEntityManager();
-            EntityTransaction transaction = null;
-
-            try {
-                // Get a transaction
-                transaction = manager.getTransaction();
-                // Begin the transaction
-                transaction.begin();
-
-                manager.merge(this.stationModel);
-
-                // Commit the transaction
-                transaction.commit();
-            } catch (Exception ex) {
-                // If there are any exceptions, roll back the changes
-                if (transaction != null) {
-                    transaction.rollback();
-                }
-                // Print the Exception
-                ex.printStackTrace();
-            }
+            DatabaseUtil.mergeEntity(this.stationModel);
         }
         this.setVisible(false);
     }

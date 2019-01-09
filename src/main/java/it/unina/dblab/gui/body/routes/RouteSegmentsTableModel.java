@@ -1,31 +1,31 @@
-package it.unina.dblab.gui.body.stations;
+package it.unina.dblab.gui.body.routes;
 
 import it.unina.dblab.gui.utility.DatabaseUtil;
-import it.unina.dblab.models.Station;
+import it.unina.dblab.models.RouteSegment;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.util.List;
 
-public class StationsTableModel implements TableModel {
+public class RouteSegmentsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-            "#ID", "Nome", "Indirizzo", "N. Telefono", "N. piattaforme", "Acc. Disabili", "Ristorante", "Servizio Taxi"
+            "#ID", "Statzione di Partenza", "Stazione di Arrivo", "Distanza in Km"
     };
 
-    private List<Station> stations;
+    private List<RouteSegment> routeSegments;
 
-    public StationsTableModel() {
+    public RouteSegmentsTableModel() {
         this.reload();
     }
 
     public void reload() {
-        stations = DatabaseUtil.listEntities(Station.class);
+        routeSegments = DatabaseUtil.listEntities(RouteSegment.class);
     }
 
     @Override
     public int getRowCount() {
-        return this.stations.size();
+        return this.routeSegments.size();
     }
 
     @Override
@@ -62,24 +62,16 @@ public class StationsTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Station station = this.stations.get(rowIndex);
+        RouteSegment routeSegment = this.routeSegments.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return station.getId();
+                return routeSegment.getId();
             case 1:
-                return station.getName();
+                return routeSegment.getDepartureStation().getName();
             case 2:
-                return station.getAddress();
+                return routeSegment.getArrivalStation().getName();
             case 3:
-                return station.getTelephone();
-            case 4:
-                return station.getNumberOfPlatforms();
-            case 5:
-                return station.getDisabledAccess();
-            case 6:
-                return station.getRestaurant();
-            case 7:
-                return station.getTaxiService();
+                return routeSegment.getDistance();
         }
         return null;
     }
@@ -99,7 +91,7 @@ public class StationsTableModel implements TableModel {
 
     }
 
-    public Station getEntityAt(int rowIndex) {
-        return this.stations.get(rowIndex);
+    public RouteSegment getEntityAt(int rowIndex) {
+        return this.routeSegments.get(rowIndex);
     }
 }
