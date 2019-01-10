@@ -1,7 +1,7 @@
 package it.unina.dblab.gui.utility;
 
-import it.unina.dblab.HeavenRail;
 import it.unina.dblab.models.JpaEntity;
+import it.unina.dblab.models.Route;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -17,6 +17,10 @@ public abstract class DatabaseUtil {
     private static EntityManager manager = entityManagerFactory.createEntityManager();
 
     public static <T> List<T> listEntities(Class<T> clazz) {
+        return listEntities(clazz, null);
+    }
+
+    public static <T> List<T> listEntities(Class<T> clazz, String whereClause) {
         List<T> entities = null;
         EntityTransaction transaction = null;
 
@@ -27,13 +31,12 @@ public abstract class DatabaseUtil {
             transaction.begin();
 
             // Get a List of Trains
-            entities = manager.createQuery("SELECT s FROM " + clazz.getName() + " s",
+            entities = manager.createQuery("SELECT s FROM " + clazz.getName() + " s " + (whereClause != null ? whereClause : ""),
                     clazz).getResultList();
 
             // Commit the transaction
             transaction.commit();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             // If there are any exceptions, roll back the changes
             if (transaction != null) {
                 transaction.rollback();
@@ -43,6 +46,13 @@ public abstract class DatabaseUtil {
         }
 
         return entities;
+    }
+
+    public static List<Route> listMainRoutes() {
+        String whereClause = "where s.id not in (SELECT x.nextRoute.id FROM " + Route.class.getName() + " x where x.nextRoute IS NOT NULL)";
+
+        return listEntities(Route.class, whereClause);
+
     }
 
     public static void mergeEntity(JpaEntity theEntity) {
@@ -58,8 +68,7 @@ public abstract class DatabaseUtil {
 
             // Commit the transaction
             transaction.commit();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             // If there are any exceptions, roll back the changes
             if (transaction != null) {
                 transaction.rollback();

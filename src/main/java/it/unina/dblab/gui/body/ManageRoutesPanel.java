@@ -4,6 +4,7 @@ import it.unina.dblab.gui.body.routesegments.EditRouteSegmentDialog;
 import it.unina.dblab.gui.body.routesegments.RouteSegmentsCellRenderer;
 import it.unina.dblab.gui.body.routesegments.RouteSegmentsTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
+import it.unina.dblab.models.Route;
 import it.unina.dblab.models.RouteSegment;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -16,24 +17,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.List;
 import java.util.Optional;
 
-public class ManageRouteSegmentsPanel extends JPanel {
-    public static final String NAME = "MANAGE_ROUTE_SEGMENTS";
+public class ManageRoutesPanel extends JPanel {
+    public static final String NAME = "MANAGE_ROUTES";
 
     private BodyContainer parent;
 
-    private JTable routeSegmentsTable;
+    private JTable routesTable;
 
-    public ManageRouteSegmentsPanel(BodyContainer parent) {
+    public ManageRoutesPanel(BodyContainer parent) {
         this.parent = parent;
+
+        List<Route> routes = DatabaseUtil.listMainRoutes();
 
         this.setBackground(Color.WHITE);
         this.setLayout(new BorderLayout());
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
-        JLabel titleLabel = new JLabel("Gestione dei Segmenti");
+        JLabel titleLabel = new JLabel("Gestione delle Tratte di Percorrenza");
         titlePanel.setBackground(Color.WHITE);
 
         titleLabel.setFont(new Font("Candara", Font.PLAIN, 26));
@@ -63,9 +67,9 @@ public class ManageRouteSegmentsPanel extends JPanel {
                     @Override
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
-                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
-                        routeSegmentsTable.revalidate();
-                        routeSegmentsTable.repaint();
+                        ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                        routesTable.revalidate();
+                        routesTable.repaint();
                     }
                 });
                 // setsize of dialog
@@ -82,20 +86,20 @@ public class ManageRouteSegmentsPanel extends JPanel {
         modify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = routeSegmentsTable.getSelectedRow();
+                int selectedRow = routesTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da modificare!");
                 } else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
+                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routesTable.getModel()).getEntityAt(selectedRow);
                     // create a dialog Box
                     JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
                     dialog.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
-                            routeSegmentsTable.revalidate();
-                            routeSegmentsTable.repaint();
+                            ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                            routesTable.revalidate();
+                            routesTable.repaint();
                         }
                     });
                     // setsize of dialog
@@ -113,20 +117,20 @@ public class ManageRouteSegmentsPanel extends JPanel {
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = routeSegmentsTable.getSelectedRow();
+                int selectedRow = routesTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                 }
                 else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
+                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routesTable.getModel()).getEntityAt(selectedRow);
 
                     try {
                         DatabaseUtil.removeEntity(routeSegmentModel);
 
-                        routeSegmentsTable.clearSelection();
-                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
-                        routeSegmentsTable.revalidate();
-                        routeSegmentsTable.repaint();
+                        routesTable.clearSelection();
+                        ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                        routesTable.revalidate();
+                        routesTable.repaint();
 
                     } catch (RollbackException rex) {
                         String errorMessage = Optional.ofNullable(rex.getCause())
@@ -137,7 +141,7 @@ public class ManageRouteSegmentsPanel extends JPanel {
                                 .filter(sqlException -> sqlException != null)
                                 .map(sqlException -> sqlException.getMessage())
                                 .orElse("Impossibile effettuare l'operazione");
-                        JOptionPane.showMessageDialog(ManageRouteSegmentsPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ManageRoutesPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -153,37 +157,37 @@ public class ManageRouteSegmentsPanel extends JPanel {
         tablePanel.setBackground(color1);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
-        routeSegmentsTable = new JTable(new RouteSegmentsTableModel());
-        routeSegmentsTable.setOpaque(false);
-        routeSegmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
-        routeSegmentsTable.setFillsViewportHeight(true);
-        routeSegmentsTable.setRowHeight(35);
-        routeSegmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        routesTable = new JTable(new RouteSegmentsTableModel());
+        routesTable.setOpaque(false);
+        routesTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        routesTable.setFillsViewportHeight(true);
+        routesTable.setRowHeight(35);
+        routesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         TableCellRenderer cellRenderer = new RouteSegmentsCellRenderer();
         //column ID
-        TableColumn col = routeSegmentsTable.getColumnModel().getColumn(0);
+        TableColumn col = routesTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(30);
         col.setMaxWidth(30);
 
         //column Stazione di partenza
-        col = routeSegmentsTable.getColumnModel().getColumn(1);
+        col = routesTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(150);
 
         //column Stazione di arrivo
-        col = routeSegmentsTable.getColumnModel().getColumn(2);
+        col = routesTable.getColumnModel().getColumn(2);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(150);
 
         //column Distanza
-        col = routeSegmentsTable.getColumnModel().getColumn(3);
+        col = routesTable.getColumnModel().getColumn(3);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(110);
         col.setMaxWidth(110);
 
-        JScrollPane scrollPane = new JScrollPane(routeSegmentsTable);
+        JScrollPane scrollPane = new JScrollPane(routesTable);
         tablePanel.add(scrollPane);
 
         return tablePanel;

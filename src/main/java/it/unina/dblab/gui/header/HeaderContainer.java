@@ -1,10 +1,7 @@
 package it.unina.dblab.gui.header;
 
 import it.unina.dblab.HeavenRail;
-import it.unina.dblab.gui.body.BodyContainer;
-import it.unina.dblab.gui.body.ManageRouteSegmentsPanel;
-import it.unina.dblab.gui.body.ManageStationsPanel;
-import it.unina.dblab.gui.body.ManageTrainsPanel;
+import it.unina.dblab.gui.body.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +14,8 @@ public class HeaderContainer extends JPanel implements ActionListener {
 
     private HeaderButton manageTrainsButton = new HeaderButton("Gestisci Treni");
     private HeaderButton manageStationsButton = new HeaderButton("Gestisci Stazioni");
-    private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Segmenti");
+    private HeaderButton manageRouteSegmentsButton = new HeaderButton("Gestisci Segmenti");
+    private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Tratte di Percorrenza");
 
     public HeaderContainer(HeavenRail parent) {
         this.parent = parent;
@@ -29,14 +27,17 @@ public class HeaderContainer extends JPanel implements ActionListener {
 
         manageTrainsButton.addActionListener(this);
         manageStationsButton.addActionListener(this);
+        manageRouteSegmentsButton.addActionListener(this);
         manageRoutesButton.addActionListener(this);
         this.add(manageTrainsButton);
         this.add(manageStationsButton);
+        this.add(manageRouteSegmentsButton);
         this.add(manageRoutesButton);
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(manageTrainsButton);
         buttonGroup.add(manageStationsButton);
+        buttonGroup.add(manageRouteSegmentsButton);
         buttonGroup.add(manageRoutesButton);
 
         manageTrainsButton.setSelected(true);
@@ -65,8 +66,11 @@ public class HeaderContainer extends JPanel implements ActionListener {
         else if(e.getSource() == manageStationsButton) {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageStationsPanel.NAME);
         }
-        else if(e.getSource() == manageRoutesButton) {
+        else if(e.getSource() == manageRouteSegmentsButton) {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRouteSegmentsPanel.NAME);
+        }
+        else if(e.getSource() == manageRoutesButton) {
+            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRoutesPanel.NAME);
         }
     }
 

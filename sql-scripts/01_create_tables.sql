@@ -85,6 +85,7 @@ COMMENT ON COLUMN ROUTE_SEGMENTS.DEPARTURE_STATION_ID IS 'The departure station 
 COMMENT ON COLUMN ROUTE_SEGMENTS.ARRIVAL_STATION_ID IS 'The arrival station id. It is the end point of the route node.';
 COMMENT ON COLUMN ROUTE_SEGMENTS.DISTANCE IS 'The distance between the two stations. It is expressed in kilometers.';
 /
+
 ---------------------------------------------------------------------------------------------------------
 
 CREATE TABLE ROUTES (
