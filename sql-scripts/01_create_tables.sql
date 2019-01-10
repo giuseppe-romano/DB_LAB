@@ -48,7 +48,7 @@ CREATE TABLE STATIONS (
         UNIQUE (NAME)
 );
 /
-COMMENT ON TABLE STATIONS IS 'The table modelling all the stations on which the railway company performs routes';
+COMMENT ON TABLE STATIONS IS 'The table modelling all the stations on which the railway company performs routesegments';
 COMMENT ON COLUMN STATIONS.ID IS 'The primary key of the table';
 COMMENT ON COLUMN STATIONS.NAME IS 'The station''s name';
 COMMENT ON COLUMN STATIONS.ADDRESS IS 'The station''s address';
@@ -75,7 +75,8 @@ CREATE TABLE ROUTE_SEGMENTS (
         FOREIGN KEY (ARRIVAL_STATION_ID)
         REFERENCES STATIONS (ID),
 				
-     CONSTRAINT ROUTE_SEGMENTS_CK_DEP_ARR_ST CHECK (DEPARTURE_STATION_ID <> ARRIVAL_STATION_ID)
+     CONSTRAINT ROUTE_SEGMENTS_CK_DEP_ARR_ST CHECK (DEPARTURE_STATION_ID <> ARRIVAL_STATION_ID),
+     CONSTRAINT ROUTE_SEGMENTS_UK UNIQUE (DEPARTURE_STATION_ID, ARRIVAL_STATION_ID)
 );
 /
 COMMENT ON TABLE ROUTE_SEGMENTS IS 'The table modelling a segment connecting two single stations in one way (one direction only).';
@@ -122,7 +123,7 @@ CREATE TABLE TIMETABLE (
 	 CONSTRAINT TIMETABLE_WEEK_DAY CHECK (WEEK_DAY IN (1, 7))
 );
 /
-COMMENT ON TABLE TIMETABLE IS 'The table modelling all the routes covered by the railway company';
+COMMENT ON TABLE TIMETABLE IS 'The table modelling all the routesegments covered by the railway company';
 /
 
 ---------------------------------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ CREATE TABLE TICKET_DEFINITIONS (
         REFERENCES ROUTES (ID)
 );
 /
-COMMENT ON TABLE TICKET_DEFINITIONS IS 'The table modelling all the routes covered by the railway company';
+COMMENT ON TABLE TICKET_DEFINITIONS IS 'The table modelling all the routesegments covered by the railway company';
 /
 
 ---------------------------------------------------------------------------------------------------------
@@ -183,5 +184,5 @@ CREATE TABLE BOOKINGS (
         REFERENCES CUSTOMERS (ID)
 );
 /
-COMMENT ON TABLE BOOKINGS IS 'The table modelling all the routes covered by the railway company';
+COMMENT ON TABLE BOOKINGS IS 'The table modelling all the routesegments covered by the railway company';
 /

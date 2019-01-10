@@ -1,4 +1,4 @@
-package it.unina.dblab.gui.body.routes;
+package it.unina.dblab.gui.body.routesegments;
 
 
 import javax.swing.*;
@@ -26,6 +26,7 @@ public class RouteSegmentsCellRenderer implements TableCellRenderer {
                 break;
             case 3:
                 //column Distanza
+                label.setText(value + " Km");
                 label.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
                 break;
         }

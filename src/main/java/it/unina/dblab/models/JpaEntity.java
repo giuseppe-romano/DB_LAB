@@ -1,6 +1,8 @@
 package it.unina.dblab.models;
 
-public interface JpaEntity {
+public interface JpaEntity<T> {
 
     Integer getId();
+
+    T copy();
 }

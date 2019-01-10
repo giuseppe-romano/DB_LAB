@@ -1,11 +1,13 @@
 package it.unina.dblab.gui.body;
 
-import it.unina.dblab.gui.body.routes.EditRouteSegmentDialog;
-import it.unina.dblab.gui.body.routes.RouteSegmentsCellRenderer;
-import it.unina.dblab.gui.body.routes.RouteSegmentsTableModel;
+import it.unina.dblab.gui.body.routesegments.EditRouteSegmentDialog;
+import it.unina.dblab.gui.body.routesegments.RouteSegmentsCellRenderer;
+import it.unina.dblab.gui.body.routesegments.RouteSegmentsTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.RouteSegment;
+import org.hibernate.exception.ConstraintViolationException;
 
+import javax.persistence.RollbackException;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -14,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Optional;
 
 public class ManageRouteSegmentsPanel extends JPanel {
     public static final String NAME = "MANAGE_ROUTES";
@@ -67,7 +70,7 @@ public class ManageRouteSegmentsPanel extends JPanel {
                 });
                 // setsize of dialog
                 dialog.pack();
-                dialog.setSize(450, 300);
+                dialog.setSize(450, 200);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -97,7 +100,7 @@ public class ManageRouteSegmentsPanel extends JPanel {
                     });
                     // setsize of dialog
                     dialog.pack();
-                    dialog.setSize(450, 300);
+                    dialog.setSize(450, 200);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);
@@ -113,20 +116,28 @@ public class ManageRouteSegmentsPanel extends JPanel {
                 int selectedRow = routeSegmentsTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    routeSegmentsTable.clearSelection();
-
+                }
+                else {
                     RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
 
                     try {
                         DatabaseUtil.removeEntity(routeSegmentModel);
 
+                        routeSegmentsTable.clearSelection();
                         ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
                         routeSegmentsTable.revalidate();
                         routeSegmentsTable.repaint();
 
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(parent, ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                    } catch (RollbackException rex) {
+                        String errorMessage = Optional.ofNullable(rex.getCause())
+                                .map(cause -> cause.getCause())
+                                .filter(deepCause -> deepCause instanceof ConstraintViolationException)
+                                .map(deepCause -> ((ConstraintViolationException)deepCause))
+                                .map(constraintViolation -> constraintViolation.getSQLException())
+                                .filter(sqlException -> sqlException != null)
+                                .map(sqlException -> sqlException.getMessage())
+                                .orElse("Impossibile effettuare l'operazione");
+                        JOptionPane.showMessageDialog(ManageRouteSegmentsPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }

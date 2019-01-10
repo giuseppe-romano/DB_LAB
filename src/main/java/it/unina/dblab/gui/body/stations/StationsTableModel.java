@@ -5,6 +5,8 @@ import it.unina.dblab.models.Station;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class StationsTableModel implements TableModel {
@@ -21,6 +23,7 @@ public class StationsTableModel implements TableModel {
 
     public void reload() {
         stations = DatabaseUtil.listEntities(Station.class);
+        Collections.sort(stations, Comparator.comparing(e -> e.getId()));
     }
 
     @Override

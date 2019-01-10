@@ -4,16 +4,23 @@ import it.unina.dblab.HeavenRail;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.Station;
+import org.hibernate.exception.ConstraintViolationException;
 
+import javax.persistence.RollbackException;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Optional;
 
-public class EditStationDialog extends JDialog implements FocusListener, ActionListener {
+public class EditStationDialog extends JDialog implements FocusListener, ActionListener, ChangeListener, DocumentListener {
 
     private Station stationModel;
 
@@ -31,7 +38,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
 
     public EditStationDialog(Station stationModel) {
         super(HeavenRail.getFrame(), (stationModel.getId() != null ? "Modifica " : "Aggiungi Nuova ") + "Stazione");
-        this.stationModel = stationModel;
+        this.stationModel = stationModel.copy();
 
         this.setModal(true);
         this.setLocationRelativeTo(HeavenRail.getFrame());
@@ -47,6 +54,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
         nameTextField = new JTextField(10);
         nameTextField.setText(this.stationModel.getName());
         nameTextField.addFocusListener(this);
+        nameTextField.getDocument().addDocumentListener(this);
 
         nameLabel.setLabelFor(nameTextField);
         contentPanel.add(nameTextField);
@@ -59,6 +67,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
         addressTextField = new JTextField(10);
         addressTextField.setText(this.stationModel.getAddress());
         addressTextField.addFocusListener(this);
+        addressTextField.getDocument().addDocumentListener(this);
 
         addressLabel.setLabelFor(addressTextField);
         contentPanel.add(addressTextField);
@@ -71,6 +80,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
         telephoneTextField = new JTextField(10);
         telephoneTextField.setText(this.stationModel.getTelephone());
         telephoneTextField.addFocusListener(this);
+        telephoneTextField.getDocument().addDocumentListener(this);
 
         telephoneLabel.setLabelFor(telephoneTextField);
         contentPanel.add(telephoneTextField);
@@ -85,6 +95,7 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
                 99, //max
                 1);                //step
         platformSpinner = new JSpinner(platformSpinnerModel);
+        platformSpinner.addChangeListener(this);
         JSpinner.DefaultEditor platformSpinnerEditor = (JSpinner.DefaultEditor) platformSpinner.getEditor();
         platformSpinnerEditor.getTextField().addFocusListener(this);
         carriageLabel.setLabelFor(platformSpinner);
@@ -105,14 +116,17 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
         disabledCheckBox = new JCheckBox("Accesso per Disabili");
         disabledCheckBox.setSelected(this.stationModel.getDisabledAccess());
         disabledCheckBox.addFocusListener(this);
+        disabledCheckBox.addActionListener(this);
         servicesPanel.add(disabledCheckBox);
         restaurantCheckBox = new JCheckBox("Servizio Ristorante");
         restaurantCheckBox.setSelected(this.stationModel.getRestaurant());
         restaurantCheckBox.addFocusListener(this);
+        restaurantCheckBox.addActionListener(this);
         servicesPanel.add(restaurantCheckBox);
         taxiCheckBox = new JCheckBox("Servizio Taxi");
         taxiCheckBox.setSelected(this.stationModel.getTaxiService());
         taxiCheckBox.addFocusListener(this);
+        taxiCheckBox.addActionListener(this);
         servicesPanel.add(taxiCheckBox);
 
         this.getContentPane().add(servicesPanel);
@@ -120,10 +134,6 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         addButton = new JButton(this.stationModel.getId() != null ? "Modifica" : "Aggiungi");
-        addButton.setEnabled(!this.stationModel.getName().isEmpty() &&
-                !this.stationModel.getAddress().isEmpty() &&
-                !this.stationModel.getTelephone().isEmpty() &&
-                this.stationModel.getNumberOfPlatforms() > 0);
 
         addButton.addActionListener(this);
         cancelButton = new JButton("Annulla");
@@ -133,6 +143,8 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
 
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
         this.getContentPane().add(buttonPanel);
+
+        this.setModel();
     }
 
     @Override
@@ -142,6 +154,60 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
 
     @Override
     public void focusLost(FocusEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.setModel();
+
+        if (e.getSource() == cancelButton || e.getSource() == addButton) {
+            if (e.getSource() == addButton) {
+                try {
+                    DatabaseUtil.mergeEntity(this.stationModel);
+                    this.setVisible(false);
+                }
+                catch (RollbackException rex) {
+                    String errorMessage = Optional.ofNullable(rex.getCause())
+                            .map(cause -> cause.getCause())
+                            .filter(deepCause -> deepCause instanceof ConstraintViolationException)
+                            .map(deepCause -> ((ConstraintViolationException)deepCause))
+                            .map(constraintViolation -> constraintViolation.getSQLException())
+                            .filter(sqlException -> sqlException != null)
+                            .map(sqlException -> sqlException.getMessage())
+                            .orElse("Impossibile effettuare l'operazione");
+                    JOptionPane.showMessageDialog(this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
+
+                }
+            }
+            else {
+                this.setVisible(false);
+            }
+        }
+    }
+
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        this.setModel();
+    }
+
+    private void setModel() {
         this.stationModel.setName(nameTextField.getText());
         this.stationModel.setAddress(addressTextField.getText());
         this.stationModel.setTelephone(telephoneTextField.getText());
@@ -156,11 +222,4 @@ public class EditStationDialog extends JDialog implements FocusListener, ActionL
                 this.stationModel.getNumberOfPlatforms() > 0);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == addButton) {
-            DatabaseUtil.mergeEntity(this.stationModel);
-        }
-        this.setVisible(false);
-    }
 }

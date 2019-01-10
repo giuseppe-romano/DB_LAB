@@ -5,7 +5,9 @@ import it.unina.dblab.gui.body.stations.StationsCellRenderer;
 import it.unina.dblab.gui.body.stations.StationsTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Station;
+import org.hibernate.exception.ConstraintViolationException;
 
+import javax.persistence.RollbackException;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -14,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Optional;
 
 public class ManageStationsPanel extends JPanel {
     public static final String NAME = "MANAGE_STATIONS";
@@ -116,20 +119,28 @@ public class ManageStationsPanel extends JPanel {
                 int selectedRow = stationsTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    stationsTable.clearSelection();
-
+                }
+                else {
                     Station stationModel = ((StationsTableModel) stationsTable.getModel()).getEntityAt(selectedRow);
 
                     try {
                         DatabaseUtil.removeEntity(stationModel);
 
+                        stationsTable.clearSelection();
                         ((StationsTableModel) stationsTable.getModel()).reload();
                         stationsTable.revalidate();
                         stationsTable.repaint();
 
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(parent, ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                    } catch (RollbackException rex) {
+                        String errorMessage = Optional.ofNullable(rex.getCause())
+                                .map(cause -> cause.getCause())
+                                .filter(deepCause -> deepCause instanceof ConstraintViolationException)
+                                .map(deepCause -> ((ConstraintViolationException)deepCause))
+                                .map(constraintViolation -> constraintViolation.getSQLException())
+                                .filter(sqlException -> sqlException != null)
+                                .map(sqlException -> sqlException.getMessage())
+                                .orElse("Impossibile effettuare l'operazione");
+                        JOptionPane.showMessageDialog(ManageStationsPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }

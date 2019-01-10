@@ -2,10 +2,11 @@ package it.unina.dblab.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "STATIONS")
-public class Station implements Serializable, JpaEntity {
+public class Station implements Serializable, JpaEntity<Station> {
     @Id
     @SequenceGenerator(name="station_generator", sequenceName = "STATIONS_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "station_generator")
@@ -95,5 +96,35 @@ public class Station implements Serializable, JpaEntity {
 
     public void setTaxiService(boolean taxiService) {
         this.taxiService = taxiService;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Station station = (Station) o;
+        return Objects.equals(name, station.name) &&
+                Objects.equals(address, station.address);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(name, address);
+    }
+
+    @Override
+    public Station copy() {
+        Station newObject = new Station();
+        newObject.setId(this.getId());
+        newObject.setName(this.getName());
+        newObject.setAddress(this.getAddress());
+        newObject.setTelephone(this.getTelephone());
+        newObject.setDisabledAccess(this.getDisabledAccess());
+        newObject.setNumberOfPlatforms(this.getNumberOfPlatforms());
+        newObject.setRestaurant(this.getRestaurant());
+        newObject.setTaxiService(this.getTaxiService());
+
+        return newObject;
     }
 }

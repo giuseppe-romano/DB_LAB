@@ -1,16 +1,18 @@
-package it.unina.dblab.gui.body.routes;
+package it.unina.dblab.gui.body.routesegments;
 
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.RouteSegment;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class RouteSegmentsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-            "#ID", "Statzione di Partenza", "Stazione di Arrivo", "Distanza in Km"
+            "#ID", "Statzione di Partenza", "Stazione di Arrivo", "Distanza"
     };
 
     private List<RouteSegment> routeSegments;
@@ -21,6 +23,7 @@ public class RouteSegmentsTableModel implements TableModel {
 
     public void reload() {
         routeSegments = DatabaseUtil.listEntities(RouteSegment.class);
+        Collections.sort(routeSegments, Comparator.comparing(e -> e.getDepartureStation().getName()));
     }
 
     @Override
@@ -42,15 +45,10 @@ public class RouteSegmentsTableModel implements TableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-                return Integer.class;
             case 1:
-            case 2:
-            case 3:
                 return String.class;
+            case 2:
+                return Integer.class;
         }
         return null;
     }

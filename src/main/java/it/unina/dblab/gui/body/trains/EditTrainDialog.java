@@ -4,15 +4,22 @@ import it.unina.dblab.HeavenRail;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.Train;
+import org.hibernate.exception.ConstraintViolationException;
 
+import javax.persistence.RollbackException;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Optional;
 
-public class EditTrainDialog extends JDialog implements FocusListener, ActionListener {
+public class EditTrainDialog extends JDialog implements FocusListener, ActionListener, ChangeListener, DocumentListener {
 
     private Train trainModel;
 
@@ -26,7 +33,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
 
     public EditTrainDialog(Train trainModel) {
         super(HeavenRail.getFrame(), (trainModel.getId() != null ? "Modifica " : "Aggiungi Nuovo ") + "Treno");
-        this.trainModel = trainModel;
+        this.trainModel = trainModel.copy();
 
         this.setModal(true);
         this.setLocationRelativeTo(HeavenRail.getFrame());
@@ -41,7 +48,9 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
 
         categoryComboBox = new JComboBox(new String[]{"", "Frecciarossa", "Frecciarossa 1000", "Frecciargento", "Frecciabianca", "Intercity", "Regionale Veloce"});
         categoryComboBox.setSelectedItem(this.trainModel.getCategory() != null ? this.trainModel.getCategory() : "");
+        categoryComboBox.setBackground(Color.WHITE);
         categoryComboBox.addFocusListener(this);
+        categoryComboBox.addActionListener(this);
         categoryLabel.setLabelFor(categoryComboBox);
         contentPanel.add(categoryComboBox);
 
@@ -53,6 +62,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
         acronymTextField = new JTextField(10);
         acronymTextField.setText(this.trainModel.getCode());
         acronymTextField.addFocusListener(this);
+        acronymTextField.getDocument().addDocumentListener(this);
 
 
         acronymLabel.setLabelFor(acronymTextField);
@@ -67,6 +77,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
                 500, //max
                 5);                //step
         speedSpinner = new JSpinner(speedSpinnerModel);
+        speedSpinner.addChangeListener(this);
         JSpinner.DefaultEditor speedSpinnerEditor = (JSpinner.DefaultEditor) speedSpinner.getEditor();
         speedSpinnerEditor.getTextField().addFocusListener(this);
         speedLabel.setLabelFor(speedSpinner);
@@ -82,6 +93,7 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
                 50, //max
                 1);                //step
         carriageSpinner = new JSpinner(carriageSpinnerModel);
+        carriageSpinner.addChangeListener(this);
         JSpinner.DefaultEditor carriageSpinnerEditor = (JSpinner.DefaultEditor) carriageSpinner.getEditor();
         carriageSpinnerEditor.getTextField().addFocusListener(this);
         carriageLabel.setLabelFor(carriageSpinner);
@@ -121,6 +133,60 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
 
     @Override
     public void focusLost(FocusEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.setModel();
+
+        if (e.getSource() == cancelButton || e.getSource() == addButton) {
+            if (e.getSource() == addButton) {
+                try {
+                    DatabaseUtil.mergeEntity(this.trainModel);
+                    this.setVisible(false);
+                }
+                catch (RollbackException rex) {
+                    String errorMessage = Optional.ofNullable(rex.getCause())
+                            .map(cause -> cause.getCause())
+                            .filter(deepCause -> deepCause instanceof ConstraintViolationException)
+                            .map(deepCause -> ((ConstraintViolationException)deepCause))
+                            .map(constraintViolation -> constraintViolation.getSQLException())
+                            .filter(sqlException -> sqlException != null)
+                            .map(sqlException -> sqlException.getMessage())
+                            .orElse("Impossibile effettuare l'operazione");
+                    JOptionPane.showMessageDialog(this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
+
+                }
+            }
+            else {
+                this.setVisible(false);
+            }
+        }
+    }
+
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        this.setModel();
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        this.setModel();
+    }
+
+    private void setModel() {
         this.trainModel.setCategory(categoryComboBox.getSelectedItem().toString());
         this.trainModel.setCode(acronymTextField.getText());
         this.trainModel.setNominalSpeed(Integer.valueOf(speedSpinner.getValue().toString()));
@@ -130,13 +196,5 @@ public class EditTrainDialog extends JDialog implements FocusListener, ActionLis
                 !this.trainModel.getCode().isEmpty() &&
                 this.trainModel.getNominalSpeed() > 0 &&
                 this.trainModel.getCarriages() > 0);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == addButton) {
-            DatabaseUtil.mergeEntity(this.trainModel);
-        }
-        this.setVisible(false);
     }
 }
