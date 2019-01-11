@@ -1,15 +1,15 @@
 package it.unina.dblab.gui.body;
 
-import it.unina.dblab.gui.body.routesegments.EditRouteSegmentDialog;
-import it.unina.dblab.gui.body.routesegments.RouteSegmentsCellRenderer;
-import it.unina.dblab.gui.body.routesegments.RouteSegmentsTableModel;
+import it.unina.dblab.gui.body.routes.EditRouteDialog;
+import it.unina.dblab.gui.body.routes.RoutesCellRenderer;
+import it.unina.dblab.gui.body.routes.RoutesTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.RouteSegment;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.RollbackException;
 import javax.swing.*;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -17,7 +17,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.List;
 import java.util.Optional;
 
 public class ManageRoutesPanel extends JPanel {
@@ -29,8 +28,6 @@ public class ManageRoutesPanel extends JPanel {
 
     public ManageRoutesPanel(BodyContainer parent) {
         this.parent = parent;
-
-        List<Route> routes = DatabaseUtil.listMainRoutes();
 
         this.setBackground(Color.WHITE);
         this.setLayout(new BorderLayout());
@@ -55,19 +52,19 @@ public class ManageRoutesPanel extends JPanel {
         panel.setBackground(new Color(211, 212, 222, 255));
         panel.setLayout(new GridLayout(10, 1));
 
-        LeftMenuButton addNewSegment = new LeftMenuButton("Aggiungi Nuovo");
+        LeftMenuButton addNewSegment = new LeftMenuButton("Aggiungi Nuova");
         addNewSegment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // create a dialog Box
-                RouteSegment routeSegmentModel = new RouteSegment();
+                Route routeModel = new Route();
 
-                JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
+                JDialog dialog = new EditRouteDialog(routeModel);
                 dialog.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
-                        ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                        ((RoutesTableModel) routesTable.getModel()).reload();
                         routesTable.revalidate();
                         routesTable.repaint();
                     }
@@ -90,14 +87,14 @@ public class ManageRoutesPanel extends JPanel {
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da modificare!");
                 } else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routesTable.getModel()).getEntityAt(selectedRow);
+                    Route routeModel = ((RoutesTableModel) routesTable.getModel()).getEntityAt(selectedRow);
                     // create a dialog Box
-                    JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
+                    JDialog dialog = new EditRouteDialog(routeModel);
                     dialog.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                            ((RoutesTableModel) routesTable.getModel()).reload();
                             routesTable.revalidate();
                             routesTable.repaint();
                         }
@@ -120,15 +117,14 @@ public class ManageRoutesPanel extends JPanel {
                 int selectedRow = routesTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
-                }
-                else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routesTable.getModel()).getEntityAt(selectedRow);
+                } else {
+                    Route routeModel = ((RoutesTableModel) routesTable.getModel()).getEntityAt(selectedRow);
 
                     try {
-                        DatabaseUtil.removeEntity(routeSegmentModel);
+                        DatabaseUtil.removeEntity(routeModel);
 
                         routesTable.clearSelection();
-                        ((RouteSegmentsTableModel) routesTable.getModel()).reload();
+                        ((RoutesTableModel) routesTable.getModel()).reload();
                         routesTable.revalidate();
                         routesTable.repaint();
 
@@ -136,7 +132,7 @@ public class ManageRoutesPanel extends JPanel {
                         String errorMessage = Optional.ofNullable(rex.getCause())
                                 .map(cause -> cause.getCause())
                                 .filter(deepCause -> deepCause instanceof ConstraintViolationException)
-                                .map(deepCause -> ((ConstraintViolationException)deepCause))
+                                .map(deepCause -> ((ConstraintViolationException) deepCause))
                                 .map(constraintViolation -> constraintViolation.getSQLException())
                                 .filter(sqlException -> sqlException != null)
                                 .map(sqlException -> sqlException.getMessage())
@@ -157,35 +153,25 @@ public class ManageRoutesPanel extends JPanel {
         tablePanel.setBackground(color1);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
-        routesTable = new JTable(new RouteSegmentsTableModel());
+        routesTable = new JTable(new RoutesTableModel());
         routesTable.setOpaque(false);
         routesTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
         routesTable.setFillsViewportHeight(true);
-        routesTable.setRowHeight(35);
+        routesTable.setRowHeight(130);
         routesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        TableCellRenderer cellRenderer = new RouteSegmentsCellRenderer();
+        TableCellRenderer cellRenderer = new RoutesCellRenderer();
         //column ID
         TableColumn col = routesTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(30);
         col.setMaxWidth(30);
 
-        //column Stazione di partenza
+        //column Tratta di percorrenza
         col = routesTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
+        col.setCellEditor((TableCellEditor)cellRenderer);
         col.setMinWidth(150);
-
-        //column Stazione di arrivo
-        col = routesTable.getColumnModel().getColumn(2);
-        col.setCellRenderer(cellRenderer);
-        col.setMinWidth(150);
-
-        //column Distanza
-        col = routesTable.getColumnModel().getColumn(3);
-        col.setCellRenderer(cellRenderer);
-        col.setMinWidth(110);
-        col.setMaxWidth(110);
 
         JScrollPane scrollPane = new JScrollPane(routesTable);
         tablePanel.add(scrollPane);

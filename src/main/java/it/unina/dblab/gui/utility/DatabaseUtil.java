@@ -48,6 +48,10 @@ public abstract class DatabaseUtil {
         return entities;
     }
 
+    /**
+     * This method returns all the starting-point routes
+     * @return
+     */
     public static List<Route> listMainRoutes() {
         String whereClause = "where s.id not in (SELECT x.nextRoute.id FROM " + Route.class.getName() + " x where x.nextRoute IS NOT NULL)";
 
