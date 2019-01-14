@@ -71,7 +71,7 @@ public class ManageRoutesPanel extends JPanel {
                 });
                 // setsize of dialog
                 dialog.pack();
-                dialog.setSize(450, 200);
+                dialog.setSize(550, 500);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -101,7 +101,7 @@ public class ManageRoutesPanel extends JPanel {
                     });
                     // setsize of dialog
                     dialog.pack();
-                    dialog.setSize(450, 200);
+                    dialog.setSize(550, 500);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);
@@ -170,7 +170,6 @@ public class ManageRoutesPanel extends JPanel {
         //column Tratta di percorrenza
         col = routesTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
-        col.setCellEditor((TableCellEditor)cellRenderer);
         col.setMinWidth(150);
 
         JScrollPane scrollPane = new JScrollPane(routesTable);

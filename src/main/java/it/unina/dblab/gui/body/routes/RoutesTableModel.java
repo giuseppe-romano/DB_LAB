@@ -22,7 +22,7 @@ public class RoutesTableModel implements TableModel {
     }
 
     public void reload() {
-        routes = DatabaseUtil.listMainRoutes();
+        routes = DatabaseUtil.listEntities(Route.class);
         Collections.sort(routes, Comparator.comparing(e -> e.getId()));
     }
 
@@ -54,7 +54,7 @@ public class RoutesTableModel implements TableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return false;
     }
 
     @Override

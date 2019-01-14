@@ -6,6 +6,8 @@
         <!-- Persistence provider -->
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
+            <property name="show_sql" value="true"/>
+
             <!-- The JDBC driver of your database -->
             <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver" />
             <!-- The JDBC URL to the database instance -->

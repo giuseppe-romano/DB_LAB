@@ -2,7 +2,11 @@ package it.unina.dblab.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "ROUTES")
@@ -14,16 +18,19 @@ public class Route implements Serializable, JpaEntity<Route> {
     @Column(name = "ID", unique = true)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ROUTE_SEGMENT_ID")
-    private RouteSegment segment;
+    @OneToMany(fetch = FetchType.EAGER,
+            mappedBy = "route",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("sequence ASC")
+    private List<Route2RouteSegment> routeSegments;
 
-    @Column(name = "STOPS_AT_ARRIVAL")
-    private boolean stopsAtArrival;
+    @Column(name = "NAME", nullable = false)
+    private String name;
 
-    @OneToOne(fetch = FetchType.EAGER, optional = true)
-    @JoinColumn(name = "NEXT_ID")
-    private Route nextRoute;
+    @Column(name = "ACTIVE")
+    private boolean active;
 
     @Override
     public Integer getId() {
@@ -34,28 +41,28 @@ public class Route implements Serializable, JpaEntity<Route> {
         this.id = id;
     }
 
-    public RouteSegment getSegment() {
-        return segment;
+    public List<Route2RouteSegment> getRouteSegments() {
+        return routeSegments;
     }
 
-    public void setSegment(RouteSegment segment) {
-        this.segment = segment;
+    public void setRouteSegments(List<Route2RouteSegment> routeSegments) {
+        this.routeSegments = routeSegments;
     }
 
-    public boolean getStopsAtArrival() {
-        return stopsAtArrival;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setStopsAtArrival(boolean stopsAtArrival) {
-        this.stopsAtArrival = stopsAtArrival;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
-    public Route getNextRoute() {
-        return nextRoute;
+    public String getName() {
+        return name;
     }
 
-    public void setNextRoute(Route nextRoute) {
-        this.nextRoute = nextRoute;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -76,9 +83,16 @@ public class Route implements Serializable, JpaEntity<Route> {
     public Route copy() {
         Route newObject = new Route();
         newObject.setId(this.getId());
-        newObject.setNextRoute(this.getNextRoute());
-        newObject.setSegment(this.getSegment());
-        newObject.setStopsAtArrival(this.getStopsAtArrival());
+        newObject.setActive(this.isActive());
+        newObject.setName(this.getName());
+
+        List<Route2RouteSegment> route2RouteSegments =
+        Optional.ofNullable(this.getRouteSegments()).orElse(new ArrayList<>())
+                .stream()
+                .map(route2RouteSegment -> route2RouteSegment.copy())
+                .collect(Collectors.toList());
+
+        newObject.setRouteSegments(route2RouteSegments);
 
         return newObject;
     }

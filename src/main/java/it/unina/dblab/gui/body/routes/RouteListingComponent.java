@@ -1,23 +1,21 @@
 package it.unina.dblab.gui.body.routes;
 
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.RouteSegment;
-import it.unina.dblab.models.Station;
+import it.unina.dblab.models.Route2RouteSegment;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class RouteListingComponent extends JPanel {
 
     private Route route;
+
+    private JPanel title;
+    private JPanel body;
 
     public RouteListingComponent(Route route) {
         this.route = route;
@@ -25,13 +23,13 @@ public class RouteListingComponent extends JPanel {
         this.setLayout(new BorderLayout());
         this.setMaximumSize(new Dimension(100, 300));
 
+        title = new JPanel();
 
-        JPanel title = new JPanel();
-        title.add(new JLabel("Da: " + route.getSegment().getDepartureStation().getName() + "        A: " + getTerminalStationName(route) + "           Distanza totale: " + getTotalDistance(route) + " Km"));
+        title.add(new JLabel(route.getName()));
         this.add(title, BorderLayout.NORTH);
 
-        JPanel body = new JPanel();
-        body.setBackground(Color.WHITE);
+        body = new JPanel();
+        body.setBackground(this.getBackground());
         body.setMaximumSize(new Dimension(100, 300));
 
         body.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
@@ -47,27 +45,13 @@ public class RouteListingComponent extends JPanel {
 
     private List<JPanel> composePath(Route route) {
         List<JPanel> segments = new ArrayList<>();
-        while (route != null) {
-            segments.add(this.createSegment(route));
-
-            route = route.getNextRoute();
+        for (Route2RouteSegment routeSegment : route.getRouteSegments()) {
+            segments.add(this.createSegment(routeSegment));
         }
-        JPanel addButtonPanel = new JPanel();
-
-        addButtonPanel.setBackground(Color.WHITE);
-        addButtonPanel.setMinimumSize(new Dimension(40, 83));
-        addButtonPanel.setMaximumSize(new Dimension(40, 83));
-        addButtonPanel.setPreferredSize(new Dimension(40, 83));
-
-        JButton addButton = new AddRouteButton(route);
-        addButtonPanel.add(addButton);
-
-        segments.add(addButtonPanel);
-
         return segments;
     }
 
-    private JPanel createSegment(Route route) {
+    private JPanel createSegment(Route2RouteSegment routeSegment) {
         JPanel segment = new JPanel();
         segment.setBackground(new Color(176, 218, 255));
         segment.setMinimumSize(new Dimension(120, 83));
@@ -79,37 +63,31 @@ public class RouteListingComponent extends JPanel {
 
         segment.setLayout(new BoxLayout(segment, BoxLayout.PAGE_AXIS));
 
-        segment.add(new JLabel("Da: " + route.getSegment().getDepartureStation().getName()));
-        segment.add(new JLabel("A: " + route.getSegment().getArrivalStation().getName()));
-        segment.add(new JLabel("Distanza: " + route.getSegment().getDistance() + " Km"));
-        segment.add(new JLabel("Fermata: " + (route.getStopsAtArrival() ? "SI" : "NO")));
+        segment.add(new JLabel("Da: " + routeSegment.getSegment().getDepartureStation().getName()));
+        segment.add(new JLabel("A: " + routeSegment.getSegment().getArrivalStation().getName()));
+        segment.add(new JLabel("Distanza: " + routeSegment.getSegment().getDistance() + " Km"));
+        segment.add(new JLabel("Fermata: " + (routeSegment.isPerformStop() ? "SI" : "NO")));
 
         return segment;
     }
 
-    private String getTerminalStationName(Route route) {
-        if(route.getNextRoute() != null) {
-            return this.getTerminalStationName(route.getNextRoute());
+    private Integer getTotalDistance(Route route) {
+        Integer totalDistance = 0;
+        for (Route2RouteSegment routeSegment : route.getRouteSegments()) {
+            totalDistance += routeSegment.getSegment().getDistance();
         }
-        return Optional.ofNullable(route)
-                .map(Route::getSegment)
-                .map(RouteSegment::getArrivalStation)
-                .map(Station::getName)
-                .orElse("??????");
+        return totalDistance;
     }
 
-    private Integer getTotalDistance(Route route) {
-        if(route.getNextRoute() != null) {
-            Integer currentDistance = Optional.ofNullable(route)
-                    .map(Route::getSegment)
-                    .map(RouteSegment::getDistance)
-                    .orElse(0);
-            return currentDistance + this.getTotalDistance(route.getNextRoute());
-        }
+    @Override
+    public void setBackground(Color bg) {
+        super.setBackground(bg);
 
-        return Optional.ofNullable(route)
-                .map(Route::getSegment)
-                .map(RouteSegment::getDistance)
-                .orElse(0);
+        if(title != null) {
+            title.setBackground(bg);
+        }
+        if(body != null) {
+            body.setBackground(bg);
+        }
     }
 }

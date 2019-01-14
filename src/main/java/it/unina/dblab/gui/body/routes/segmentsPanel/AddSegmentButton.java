@@ -1,4 +1,4 @@
-package it.unina.dblab.gui.body.routes;
+package it.unina.dblab.gui.body.routes.segmentsPanel;
 
 import it.unina.dblab.models.Route;
 
@@ -9,9 +9,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
-public class AddRouteButton extends JButton implements MouseListener {
+public class AddSegmentButton extends JButton implements MouseListener {
 
-    public AddRouteButton(Route route) {
+    public AddSegmentButton() {
 
         BufferedImage buttonIcon = null;
         try {
@@ -27,13 +27,13 @@ public class AddRouteButton extends JButton implements MouseListener {
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.setOpaque(false);
-
+        this.setToolTipText("Aggiungi un nuovo segmento");
         this.addMouseListener(this);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-System.out.println("clicked");
+
     }
 
     @Override
