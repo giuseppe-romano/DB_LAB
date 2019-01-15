@@ -33,14 +33,24 @@ public class RouteListingComponent extends JPanel {
         title = new JPanel();
         title.setLayout(new GridLayout(1, 2));
 
+        Color invalidColor = new Color(255, 156, 161);
+        Color validColor = new Color(138, 255, 120);
         JPanel title1 = new JPanel();
+        title1.setBackground(invalidColor);
         title1.setLayout(new FlowLayout(FlowLayout.LEADING));
         title1.add(new JLabel(route.getName()));
         title.add(title1);
 
         JPanel title2 = new JPanel();
+        title2.setBackground(invalidColor);
         title2.setLayout(new FlowLayout(FlowLayout.TRAILING));
-        title2.add(new JLabel("Distanza totale: " + this.getTotalDistance(route) + "Km"));
+        String labelText = "Completa i segmenti (La tratta non e' continua)";
+        if(route.isActive()) {
+            title1.setBackground(validColor);
+            title2.setBackground(validColor);
+            labelText = "Distanza totale: " + this.getTotalDistance(route) + "Km";
+        }
+        title2.add(new JLabel(labelText));
         title.add(title2);
 
         this.add(title, BorderLayout.NORTH);

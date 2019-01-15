@@ -16,6 +16,7 @@ public class HeaderContainer extends JPanel implements ActionListener {
     private HeaderButton manageStationsButton = new HeaderButton("Gestisci Stazioni");
     private HeaderButton manageRouteSegmentsButton = new HeaderButton("Gestisci Segmenti");
     private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Tratte di Percorrenza");
+    private HeaderButton manageTimetableButton = new HeaderButton("Gestisci Orari");
 
     public HeaderContainer(HeavenRail parent) {
         this.parent = parent;
@@ -29,16 +30,19 @@ public class HeaderContainer extends JPanel implements ActionListener {
         manageStationsButton.addActionListener(this);
         manageRouteSegmentsButton.addActionListener(this);
         manageRoutesButton.addActionListener(this);
+        manageTimetableButton.addActionListener(this);
         this.add(manageTrainsButton);
         this.add(manageStationsButton);
         this.add(manageRouteSegmentsButton);
         this.add(manageRoutesButton);
+        this.add(manageTimetableButton);
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(manageTrainsButton);
         buttonGroup.add(manageStationsButton);
         buttonGroup.add(manageRouteSegmentsButton);
         buttonGroup.add(manageRoutesButton);
+        buttonGroup.add(manageTimetableButton);
 
         manageTrainsButton.setSelected(true);
     }
@@ -71,6 +75,9 @@ public class HeaderContainer extends JPanel implements ActionListener {
         }
         else if(e.getSource() == manageRoutesButton) {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRoutesPanel.NAME);
+        }
+        else if(e.getSource() == manageTimetableButton) {
+            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageTimetablePanel.NAME);
         }
     }
 

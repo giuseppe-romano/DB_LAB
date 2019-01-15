@@ -186,5 +186,7 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
             routeModel.getRouteSegments().get(i).setSequence(i + 1);
             arrivalStationId = routeModel.getRouteSegments().get(i).getSegment().getArrivalStation().getId();
         }
+        //Force to stop at the end
+        routeModel.getRouteSegments().get(routeModel.getRouteSegments().size() - 1).setPerformStop(true);
     }
 }
