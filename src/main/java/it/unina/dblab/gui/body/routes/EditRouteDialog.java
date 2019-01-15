@@ -5,29 +5,22 @@ import it.unina.dblab.gui.body.routes.segmentsPanel.SegmentsPanel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.RouteSegment;
-import it.unina.dblab.models.Station;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.RollbackException;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.List;
 import java.util.Optional;
 
 public class EditRouteDialog extends JDialog implements FocusListener, ActionListener, ChangeListener, DocumentListener {
-
-
 
     private Route routeModel;
 
@@ -66,8 +59,8 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
         this.getContentPane().add(contentPanel);
 
 
-        SegmentsPanel segmentsPanel = new SegmentsPanel(this.routeModel);
-
+        SegmentsPanel segmentsPanel = new SegmentsPanel(this);
+        segmentsPanel.addFocusListener(this);
         this.getContentPane().add(segmentsPanel);
 
 
@@ -84,8 +77,8 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
         this.getContentPane().add(buttonPanel);
 
-//        addButton.setEnabled(this.routeModel.getName() != null &&
-//                this.routeModel.getRouteSegments() != null && this.routeModel.getRouteSegments().size() > 0);
+        addButton.setEnabled(this.routeModel.getName() != null &&
+                this.routeModel.getRouteSegments() != null && this.routeModel.getRouteSegments().size() > 0);
     }
 
     @Override
@@ -106,23 +99,29 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
         if (e.getSource() == cancelButton || e.getSource() == addButton) {
             if (e.getSource() == addButton) {
                 try {
-                    if(this.routeModel.getId() == null) {
+                    //When is a new entity
+                    if (this.routeModel.getId() == null) {
                         Route entity = new Route();
                         entity.setName(this.routeModel.getName());
                         entity.setActive(true);
-                        DatabaseUtil.mergeEntity(entity);
-                     //   ???????????????????????????????? aaggiungi il resto
+                        entity = DatabaseUtil.mergeEntity(entity);
+
+                        this.routeModel.setId(entity.getId());
+
+                        this.routeModel.getRouteSegments()
+                                .forEach(routeSegment -> routeSegment.getId().setRouteId(routeModel.getId()));
                     }
-                    else {
-                        DatabaseUtil.mergeEntity(this.routeModel);
-                    }
+
+                    checkSegmentLinking(this.routeModel);
+
+                    DatabaseUtil.mergeEntity(this.routeModel);
+
                     this.setVisible(false);
-                }
-                catch (RollbackException rex) {
+                } catch (RollbackException rex) {
                     String errorMessage = Optional.ofNullable(rex.getCause())
                             .map(cause -> cause.getCause())
                             .filter(deepCause -> deepCause instanceof ConstraintViolationException)
-                            .map(deepCause -> ((ConstraintViolationException)deepCause))
+                            .map(deepCause -> ((ConstraintViolationException) deepCause))
                             .map(constraintViolation -> constraintViolation.getSQLException())
                             .filter(sqlException -> sqlException != null)
                             .map(sqlException -> sqlException.getMessage())
@@ -130,12 +129,12 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
                     JOptionPane.showMessageDialog(this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
 
                 }
-            }
-            else {
+            } else {
                 this.setVisible(false);
             }
         }
     }
+
 
     @Override
     public void insertUpdate(DocumentEvent e) {
@@ -157,11 +156,35 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
         this.setModel();
     }
 
-    private void setModel() {
+    public void setModel() {
         this.routeModel.setName(nameTextField.getText());
 
-//        addButton.setEnabled(this.routeModel.getName() != null &&
-//                this.routeModel.getRouteSegments() != null && this.routeModel.getRouteSegments().size() > 0);
+        addButton.setEnabled(this.routeModel.getName() != null &&
+                this.routeModel.getRouteSegments() != null &&
+                this.routeModel.getRouteSegments().size() > 0 &&
+                this.routeModel.getRouteSegments()
+                        .stream()
+                        .noneMatch(routeSegment -> routeSegment.getSegment() == null));
     }
 
+    public Route getRouteModel() {
+        return routeModel;
+    }
+
+
+    private void checkSegmentLinking(Route routeModel) {
+        routeModel.setActive(true);
+
+        Integer arrivalStationId = routeModel.getRouteSegments().get(0).getSegment().getArrivalStation().getId();
+        routeModel.getRouteSegments().get(0).setSequence(1);
+        for(int i = 1; i < routeModel.getRouteSegments().size(); i++) {
+            Integer nextDepartureStationId = routeModel.getRouteSegments().get(i).getSegment().getDepartureStation().getId();
+            if(!arrivalStationId.equals(nextDepartureStationId)) {
+                routeModel.setActive(false);
+                break;
+            }
+            routeModel.getRouteSegments().get(i).setSequence(i + 1);
+            arrivalStationId = routeModel.getRouteSegments().get(i).getSegment().getArrivalStation().getId();
+        }
+    }
 }

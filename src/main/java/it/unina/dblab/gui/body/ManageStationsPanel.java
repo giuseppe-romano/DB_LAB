@@ -152,13 +152,12 @@ public class ManageStationsPanel extends JPanel {
 
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
-        Color color1 = new Color(253, 255, 227);
-        tablePanel.setBackground(color1);
+        tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
         stationsTable = new JTable(new StationsTableModel());
         stationsTable.setOpaque(false);
-        stationsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        stationsTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         stationsTable.setFillsViewportHeight(true);
         stationsTable.setRowHeight(35);
         stationsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

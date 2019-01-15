@@ -16,16 +16,33 @@ public class RouteListingComponent extends JPanel {
 
     private JPanel title;
     private JPanel body;
+    private JScrollPane scrollPane;
 
-    public RouteListingComponent(Route route) {
-        this.route = route;
+    public RouteListingComponent() {
 
         this.setLayout(new BorderLayout());
         this.setMaximumSize(new Dimension(100, 300));
+    }
+
+    public void composeIt(Route route) {
+        this.removeAll();
+
+        this.route = route;
+
 
         title = new JPanel();
+        title.setLayout(new GridLayout(1, 2));
 
-        title.add(new JLabel(route.getName()));
+        JPanel title1 = new JPanel();
+        title1.setLayout(new FlowLayout(FlowLayout.LEADING));
+        title1.add(new JLabel(route.getName()));
+        title.add(title1);
+
+        JPanel title2 = new JPanel();
+        title2.setLayout(new FlowLayout(FlowLayout.TRAILING));
+        title2.add(new JLabel("Distanza totale: " + this.getTotalDistance(route) + "Km"));
+        title.add(title2);
+
         this.add(title, BorderLayout.NORTH);
 
         body = new JPanel();
@@ -39,8 +56,9 @@ public class RouteListingComponent extends JPanel {
         List<JPanel> panels = this.composePath(route);
         panels.forEach(panel -> body.add(panel));
 
-        JScrollPane scrollPane = new JScrollPane(body, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane = new JScrollPane(body, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         this.add(scrollPane, BorderLayout.CENTER);
+
     }
 
     private List<JPanel> composePath(Route route) {
@@ -88,6 +106,9 @@ public class RouteListingComponent extends JPanel {
         }
         if(body != null) {
             body.setBackground(bg);
+        }
+        if(scrollPane != null) {
+            scrollPane.setBackground(bg);
         }
     }
 }

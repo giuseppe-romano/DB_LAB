@@ -96,7 +96,11 @@ CREATE TABLE ROUTES (
      ACTIVE                 NUMBER(1) DEFAULT 0
 );
 /
-
+COMMENT ON TABLE ROUTES IS 'The table modelling a route composed by several segments linked together';
+COMMENT ON COLUMN ROUTES.ID IS 'The primary key of the table.';
+COMMENT ON COLUMN ROUTES.NAME IS 'The mnemonic name of the route';
+COMMENT ON COLUMN ROUTES.ACTIVE IS 'The flag indicating wether the route is well linked between segments or not';
+/
 ---------------------------------------------------------------------------------------------------------
 
 CREATE TABLE ROUTES_2_SEGMENTS (

@@ -3,13 +3,12 @@ package it.unina.dblab.gui.body.routes;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Route;
 
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class RoutesTableModel implements TableModel {
+public class RoutesTableModel extends DefaultTableModel {
 
     private final String[] COLUMN_NAMES = {
             "#ID", "Tratta di Percorrenza"
@@ -18,17 +17,21 @@ public class RoutesTableModel implements TableModel {
     private List<Route> routes;
 
     public RoutesTableModel() {
+
         this.reload();
     }
 
     public void reload() {
         routes = DatabaseUtil.listEntities(Route.class);
         Collections.sort(routes, Comparator.comparing(e -> e.getId()));
+
+        this.fireTableDataChanged();
+        this.fireTableRowsUpdated(0, routes.size());
     }
 
     @Override
     public int getRowCount() {
-        return this.routes.size();
+        return (this.routes != null ? this.routes.size() : 0);
     }
 
     @Override
@@ -54,7 +57,7 @@ public class RoutesTableModel implements TableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return columnIndex == 1;
     }
 
     @Override
@@ -67,21 +70,6 @@ public class RoutesTableModel implements TableModel {
                 return route;
         }
         return null;
-    }
-
-    @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
-    }
-
-    @Override
-    public void addTableModelListener(TableModelListener l) {
-
-    }
-
-    @Override
-    public void removeTableModelListener(TableModelListener l) {
-
     }
 
     public Route getEntityAt(int rowIndex) {

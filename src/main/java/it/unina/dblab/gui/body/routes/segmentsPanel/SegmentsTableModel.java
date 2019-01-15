@@ -74,7 +74,9 @@ public class SegmentsTableModel implements TableModel {
             case 0:
                 RouteSegment segment = (RouteSegment) aValue;
                 routeSegments.get(rowIndex).setSegment(segment);
-                routeSegments.get(rowIndex).getId().setRouteSegmentId(segment.getId());
+                if(segment != null && routeSegments.get(rowIndex).getId() != null) {
+                    routeSegments.get(rowIndex).getId().setRouteSegmentId(segment.getId());
+                }
                 break;
             case 1:
                 routeSegments.get(rowIndex).setPerformStop((Boolean) aValue);

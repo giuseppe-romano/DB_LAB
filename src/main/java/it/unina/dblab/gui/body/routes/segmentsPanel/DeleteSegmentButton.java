@@ -21,7 +21,6 @@ public class DeleteSegmentButton extends JButton implements MouseListener {
         }
 
         this.setIcon(new ImageIcon(buttonIcon));
-        this.setBorderPainted(false);
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.setOpaque(false);

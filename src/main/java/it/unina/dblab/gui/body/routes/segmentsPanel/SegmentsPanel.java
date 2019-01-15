@@ -1,5 +1,6 @@
 package it.unina.dblab.gui.body.routes.segmentsPanel;
 
+import it.unina.dblab.gui.body.routes.EditRouteDialog;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Route;
 import it.unina.dblab.models.Route2RouteSegment;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class SegmentsPanel extends JPanel implements ActionListener, DocumentListener {
     private List<RouteSegment> segments = DatabaseUtil.listEntities(RouteSegment.class);
 
+    private EditRouteDialog editRouteDialog;
     private Route routeModel;
 
     private JTable segmentsTable;
@@ -32,8 +34,9 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
     private JButton deleteSegmentButton;
 
 
-    public SegmentsPanel(Route routeModel) {
-        this.routeModel = routeModel;
+    public SegmentsPanel(EditRouteDialog editRouteDialog) {
+        this.editRouteDialog = editRouteDialog;
+        this.routeModel = editRouteDialog.getRouteModel();
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Border border = BorderFactory.createTitledBorder("Lista dei segmenti");
@@ -41,7 +44,7 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
 
         segmentsTable = new JTable(new SegmentsTableModel(routeModel.getRouteSegments()));
         segmentsTable.setOpaque(false);
-        segmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        segmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         segmentsTable.setFillsViewportHeight(true);
         segmentsTable.setRowHeight(30);
         segmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -59,7 +62,7 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
                 label.setOpaque(true);
                 label.setBackground(Color.WHITE);
 
-                if(isSelected) {
+                if (isSelected) {
                     label.setBackground(new Color(176, 218, 255));
                 }
 
@@ -71,7 +74,7 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 String text = Optional.ofNullable(value)
-                        .map(obj -> (RouteSegment)obj)
+                        .map(obj -> (RouteSegment) obj)
                         .map(segment -> segment.getDepartureStation().getName() + " - " + segment.getArrivalStation().getName())
                         .orElse("");
 
@@ -79,7 +82,7 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
                 label.setOpaque(true);
                 label.setBackground(Color.WHITE);
 
-                if(isSelected) {
+                if (isSelected) {
                     label.setBackground(new Color(176, 218, 255));
                 }
 
@@ -115,7 +118,7 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == addSegmentButton) {
+        if (e.getSource() == addSegmentButton) {
             Route2RouteSegmentId id = new Route2RouteSegmentId();
             id.setRouteId(routeModel.getId());
 
@@ -128,19 +131,20 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
             routeModel.getRouteSegments().add(newRecord);
             segmentsTable.revalidate();
             segmentsTable.repaint();
-        }
-        else if(e.getSource() == deleteSegmentButton) {
+
+        } else if (e.getSource() == deleteSegmentButton) {
             int selectedRow = segmentsTable.getSelectedRow();
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this, "Seleziona un segmento da eliminare!");
-            }
-            else {
+            } else {
                 routeModel.getRouteSegments().remove(selectedRow);
                 segmentsTable.clearSelection();
                 segmentsTable.revalidate();
                 segmentsTable.repaint();
+
             }
         }
+        editRouteDialog.setModel();
     }
 
     @Override

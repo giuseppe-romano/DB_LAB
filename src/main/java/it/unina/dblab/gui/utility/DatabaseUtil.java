@@ -48,18 +48,33 @@ public abstract class DatabaseUtil {
         return entities;
     }
 
-    /**
-     * This method returns all the starting-point routes
-     * @return
-     */
-    public static List<Route> listMainRoutes() {
-        String whereClause = "where s.id not in (SELECT x.nextRoute.id FROM " + Route.class.getName() + " x where x.nextRoute IS NOT NULL)";
+    public static <T> T loadEntity(Class<T> clazz, Object id) {
+        EntityTransaction transaction = null;
+        T entity = null;
 
-        return listEntities(Route.class, whereClause);
+        try {
+            // Get a transaction
+            transaction = manager.getTransaction();
+            // Begin the transaction
+            transaction.begin();
 
+            // Get a specific entity
+            entity = manager.find(clazz, id);
+
+            // Commit the transaction
+            transaction.commit();
+        } catch (Exception ex) {
+            // If there are any exceptions, roll back the changes
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            // Print the Exception
+            ex.printStackTrace();
+        }
+        return entity;
     }
 
-    public static void mergeEntity(JpaEntity theEntity) {
+    public static <T> T mergeEntity(T theEntity) {
         EntityTransaction transaction = null;
 
         try {
@@ -68,7 +83,7 @@ public abstract class DatabaseUtil {
             // Begin the transaction
             transaction.begin();
 
-            manager.merge(theEntity);
+            theEntity = manager.merge(theEntity);
 
             // Commit the transaction
             transaction.commit();
@@ -82,6 +97,7 @@ public abstract class DatabaseUtil {
 
             throw ex;
         }
+        return theEntity;
     }
 
     public static void removeEntity(JpaEntity theEntity) {

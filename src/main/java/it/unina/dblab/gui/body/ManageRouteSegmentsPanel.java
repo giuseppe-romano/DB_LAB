@@ -149,13 +149,12 @@ public class ManageRouteSegmentsPanel extends JPanel {
 
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
-        Color color1 = new Color(253, 255, 227);
-        tablePanel.setBackground(color1);
+        tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
         routeSegmentsTable = new JTable(new RouteSegmentsTableModel());
         routeSegmentsTable.setOpaque(false);
-        routeSegmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        routeSegmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         routeSegmentsTable.setFillsViewportHeight(true);
         routeSegmentsTable.setRowHeight(35);
         routeSegmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

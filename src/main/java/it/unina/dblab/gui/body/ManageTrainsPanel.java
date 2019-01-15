@@ -155,13 +155,12 @@ public class ManageTrainsPanel extends JPanel {
 
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
-        Color color1 = new Color(253, 255, 227);
-        tablePanel.setBackground(color1);
+        tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
         trainsTable = new JTable(new TrainsTableModel());
         trainsTable.setOpaque(false);
-        trainsTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        trainsTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         trainsTable.setFillsViewportHeight(true);
         trainsTable.setRowHeight(35);
         trainsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

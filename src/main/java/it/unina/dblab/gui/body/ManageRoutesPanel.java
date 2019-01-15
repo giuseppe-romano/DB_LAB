@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -65,6 +66,7 @@ public class ManageRoutesPanel extends JPanel {
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
                         ((RoutesTableModel) routesTable.getModel()).reload();
+                        routesTable.removeEditor();
                         routesTable.revalidate();
                         routesTable.repaint();
                     }
@@ -95,6 +97,9 @@ public class ManageRoutesPanel extends JPanel {
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
                             ((RoutesTableModel) routesTable.getModel()).reload();
+
+                            ((RoutesTableModel) routesTable.getModel()).fireTableRowsUpdated(0, routesTable.getModel().getRowCount());
+                            routesTable.removeEditor();
                             routesTable.revalidate();
                             routesTable.repaint();
                         }
@@ -125,6 +130,8 @@ public class ManageRoutesPanel extends JPanel {
 
                         routesTable.clearSelection();
                         ((RoutesTableModel) routesTable.getModel()).reload();
+                        ((RoutesTableModel) routesTable.getModel()).fireTableRowsDeleted(selectedRow, selectedRow);
+                        routesTable.removeEditor();
                         routesTable.revalidate();
                         routesTable.repaint();
 
@@ -149,18 +156,18 @@ public class ManageRoutesPanel extends JPanel {
 
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
-        Color color1 = new Color(253, 255, 227);
-        tablePanel.setBackground(color1);
+        tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
         routesTable = new JTable(new RoutesTableModel());
         routesTable.setOpaque(false);
-        routesTable.setPreferredScrollableViewportSize(new Dimension(860, 700));
+        routesTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         routesTable.setFillsViewportHeight(true);
         routesTable.setRowHeight(130);
         routesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        TableCellRenderer cellRenderer = new RoutesCellRenderer();
+
+        RoutesCellRenderer cellRenderer = new RoutesCellRenderer();
         //column ID
         TableColumn col = routesTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);
@@ -170,6 +177,7 @@ public class ManageRoutesPanel extends JPanel {
         //column Tratta di percorrenza
         col = routesTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
+        col.setCellEditor(cellRenderer);
         col.setMinWidth(150);
 
         JScrollPane scrollPane = new JScrollPane(routesTable);

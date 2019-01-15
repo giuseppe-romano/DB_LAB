@@ -8,7 +8,8 @@
 @./22_insert_customers.sql;
 @./23_insert_route_segments.sql;
 @./24_insert_routes.sql;
-@./25_insert_timetable.sql;
+@./25_insert_routes_2_segments.sql;
+@./26_insert_timetable.sql;
 
 COMMIT;
 
