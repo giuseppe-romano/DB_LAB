@@ -177,6 +177,7 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
 
         Integer arrivalStationId = routeModel.getRouteSegments().get(0).getSegment().getArrivalStation().getId();
         routeModel.getRouteSegments().get(0).setSequence(1);
+        routeModel.getRouteSegments().get(0).setTerminal(false);
         for(int i = 1; i < routeModel.getRouteSegments().size(); i++) {
             Integer nextDepartureStationId = routeModel.getRouteSegments().get(i).getSegment().getDepartureStation().getId();
             if(!arrivalStationId.equals(nextDepartureStationId)) {
@@ -184,9 +185,11 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
                 break;
             }
             routeModel.getRouteSegments().get(i).setSequence(i + 1);
+            routeModel.getRouteSegments().get(i).setTerminal(false);
             arrivalStationId = routeModel.getRouteSegments().get(i).getSegment().getArrivalStation().getId();
         }
         //Force to stop at the end
         routeModel.getRouteSegments().get(routeModel.getRouteSegments().size() - 1).setPerformStop(true);
+        routeModel.getRouteSegments().get(routeModel.getRouteSegments().size() - 1).setTerminal(true);
     }
 }

@@ -1,10 +1,12 @@
 package it.unina.dblab.gui.body;
 
 import it.unina.dblab.gui.body.routes.EditRouteDialog;
-import it.unina.dblab.gui.body.routes.RoutesCellRenderer;
-import it.unina.dblab.gui.body.routes.RoutesTableModel;
+import it.unina.dblab.gui.body.timetable.EditTimetableDialog;
+import it.unina.dblab.gui.body.timetable.TimetableCellRenderer;
+import it.unina.dblab.gui.body.timetable.TimetableTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Route;
+import it.unina.dblab.models.Timetable;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.RollbackException;
@@ -22,7 +24,7 @@ public class ManageTimetablePanel extends JPanel {
 
     private BodyContainer parent;
 
-    private JTable routesTable;
+    private JTable timetableTable;
 
     public ManageTimetablePanel(BodyContainer parent) {
         this.parent = parent;
@@ -55,22 +57,22 @@ public class ManageTimetablePanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // create a dialog Box
-                Route routeModel = new Route();
+                Timetable timetableModel = new Timetable();
 
-                JDialog dialog = new EditRouteDialog(routeModel);
+                JDialog dialog = new EditTimetableDialog(timetableModel);
                 dialog.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
-                        ((RoutesTableModel) routesTable.getModel()).reload();
-                        routesTable.removeEditor();
-                        routesTable.revalidate();
-                        routesTable.repaint();
+                        ((TimetableTableModel) timetableTable.getModel()).reload();
+                        timetableTable.removeEditor();
+                        timetableTable.revalidate();
+                        timetableTable.repaint();
                     }
                 });
                 // setsize of dialog
                 dialog.pack();
-                dialog.setSize(550, 500);
+                dialog.setSize(550, 300);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -82,28 +84,28 @@ public class ManageTimetablePanel extends JPanel {
         modify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = routesTable.getSelectedRow();
+                int selectedRow = timetableTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da modificare!");
                 } else {
-                    Route routeModel = ((RoutesTableModel) routesTable.getModel()).getEntityAt(selectedRow);
+                    Timetable timetableModel = ((TimetableTableModel) timetableTable.getModel()).getEntityAt(selectedRow);
                     // create a dialog Box
-                    JDialog dialog = new EditRouteDialog(routeModel);
+                    JDialog dialog = new EditTimetableDialog(timetableModel);
                     dialog.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ((RoutesTableModel) routesTable.getModel()).reload();
+                            ((TimetableTableModel) timetableTable.getModel()).reload();
 
-                            ((RoutesTableModel) routesTable.getModel()).fireTableRowsUpdated(0, routesTable.getModel().getRowCount());
-                            routesTable.removeEditor();
-                            routesTable.revalidate();
-                            routesTable.repaint();
+                            ((TimetableTableModel) timetableTable.getModel()).fireTableRowsUpdated(0, timetableTable.getModel().getRowCount());
+                            timetableTable.removeEditor();
+                            timetableTable.revalidate();
+                            timetableTable.repaint();
                         }
                     });
                     // setsize of dialog
                     dialog.pack();
-                    dialog.setSize(550, 500);
+                    dialog.setSize(550, 270);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);
@@ -116,21 +118,21 @@ public class ManageTimetablePanel extends JPanel {
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = routesTable.getSelectedRow();
+                int selectedRow = timetableTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                 } else {
-                    Route routeModel = ((RoutesTableModel) routesTable.getModel()).getEntityAt(selectedRow);
+                    Timetable timetableModel = ((TimetableTableModel) timetableTable.getModel()).getEntityAt(selectedRow);
 
                     try {
-                        DatabaseUtil.removeEntity(routeModel);
+                        DatabaseUtil.removeEntity(timetableModel);
 
-                        routesTable.clearSelection();
-                        ((RoutesTableModel) routesTable.getModel()).reload();
-                        ((RoutesTableModel) routesTable.getModel()).fireTableRowsDeleted(selectedRow, selectedRow);
-                        routesTable.removeEditor();
-                        routesTable.revalidate();
-                        routesTable.repaint();
+                        timetableTable.clearSelection();
+                        ((TimetableTableModel) timetableTable.getModel()).reload();
+                        ((TimetableTableModel) timetableTable.getModel()).fireTableRowsDeleted(selectedRow, selectedRow);
+                        timetableTable.removeEditor();
+                        timetableTable.revalidate();
+                        timetableTable.repaint();
 
                     } catch (RollbackException rex) {
                         String errorMessage = Optional.ofNullable(rex.getCause())
@@ -156,28 +158,45 @@ public class ManageTimetablePanel extends JPanel {
         tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
-        routesTable = new JTable(new RoutesTableModel());
-        routesTable.setOpaque(false);
-        routesTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
-        routesTable.setFillsViewportHeight(true);
-        routesTable.setRowHeight(130);
-        routesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        timetableTable = new JTable(new TimetableTableModel());
+        timetableTable.setOpaque(false);
+        timetableTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
+        timetableTable.setFillsViewportHeight(true);
+        timetableTable.setRowHeight(30);
+        timetableTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-
-        RoutesCellRenderer cellRenderer = new RoutesCellRenderer();
+        TimetableCellRenderer cellRenderer = new TimetableCellRenderer();
         //column ID
-        TableColumn col = routesTable.getColumnModel().getColumn(0);
+        TableColumn col = timetableTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);
         col.setMinWidth(30);
         col.setMaxWidth(30);
 
-        //column Tratta di percorrenza
-        col = routesTable.getColumnModel().getColumn(1);
+        //column Treno
+        col = timetableTable.getColumnModel().getColumn(1);
         col.setCellRenderer(cellRenderer);
-        col.setCellEditor(cellRenderer);
         col.setMinWidth(150);
 
-        JScrollPane scrollPane = new JScrollPane(routesTable);
+        //column Tratta di percorrenza
+        col = timetableTable.getColumnModel().getColumn(2);
+        col.setCellRenderer(cellRenderer);
+        col.setMinWidth(200);
+
+        //column Orario di partenza
+        col = timetableTable.getColumnModel().getColumn(3);
+        col.setCellRenderer(cellRenderer);
+
+        //column Binario di partenza
+        col = timetableTable.getColumnModel().getColumn(4);
+        col.setCellRenderer(cellRenderer);
+        col.setMaxWidth(115);
+
+        //column Binario di arrivo
+        col = timetableTable.getColumnModel().getColumn(5);
+        col.setCellRenderer(cellRenderer);
+        col.setMaxWidth(115);
+
+        JScrollPane scrollPane = new JScrollPane(timetableTable);
         tablePanel.add(scrollPane);
 
         return tablePanel;

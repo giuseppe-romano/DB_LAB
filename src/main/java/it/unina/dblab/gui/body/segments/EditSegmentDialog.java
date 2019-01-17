@@ -1,9 +1,9 @@
-package it.unina.dblab.gui.body.routesegments;
+package it.unina.dblab.gui.body.segments;
 
 import it.unina.dblab.HeavenRail;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
-import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Segment;
 import it.unina.dblab.models.Station;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class EditRouteSegmentDialog extends JDialog implements FocusListener, ActionListener, ChangeListener {
+public class EditSegmentDialog extends JDialog implements FocusListener, ActionListener, ChangeListener {
 
     private List<Station> stations = DatabaseUtil.listEntities(Station.class);
-    private RouteSegment routeSegmentModel;
+    private Segment segmentModel;
 
     private JComboBox<Station> departureStationComboBox;
     private JComboBox<Station> arrivalStationComboBox;
@@ -32,9 +32,9 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
     private JButton addButton;
     private JButton cancelButton;
 
-    public EditRouteSegmentDialog(RouteSegment routeSegmentModel) {
-        super(HeavenRail.getFrame(), (routeSegmentModel.getId() != null ? "Modifica " : "Aggiungi Nuovo ") + "Segmento");
-        this.routeSegmentModel = routeSegmentModel.copy();
+    public EditSegmentDialog(Segment segmentModel) {
+        super(HeavenRail.getFrame(), (segmentModel.getId() != null ? "Modifica " : "Aggiungi Nuovo ") + "Segmento");
+        this.segmentModel = segmentModel.copy();
 
         this.setModal(true);
         this.setLocationRelativeTo(HeavenRail.getFrame());
@@ -48,7 +48,7 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
         contentPanel.add(departureStationLabel);
 
         departureStationComboBox = new JComboBox<>(this.stations.toArray(new Station[0]));
-        departureStationComboBox.setSelectedItem(this.routeSegmentModel.getDepartureStation());
+        departureStationComboBox.setSelectedItem(this.segmentModel.getDepartureStation());
         departureStationComboBox.setRenderer(new StationListCellRenderer());
         departureStationComboBox.setBackground(Color.WHITE);
         departureStationComboBox.addFocusListener(this);
@@ -74,7 +74,7 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
         JLabel distanceLabel = new JLabel("Distanza", JLabel.TRAILING);
         contentPanel.add(distanceLabel);
 
-        SpinnerModel distanceSpinnerModel = new SpinnerNumberModel((this.routeSegmentModel.getDistance() != null ? this.routeSegmentModel.getDistance().intValue() : 0), //initial value
+        SpinnerModel distanceSpinnerModel = new SpinnerNumberModel((this.segmentModel.getDistance() != null ? this.segmentModel.getDistance().intValue() : 0), //initial value
                 0, //min
                 5000, //max
                 5);                //step
@@ -96,7 +96,7 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        addButton = new JButton(this.routeSegmentModel.getId() != null ? "Modifica" : "Aggiungi");
+        addButton = new JButton(this.segmentModel.getId() != null ? "Modifica" : "Aggiungi");
         addButton.addActionListener(this);
 
         cancelButton = new JButton("Annulla");
@@ -110,11 +110,11 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
         this.setArrivalStationComboBoxModel();
 
 
-        arrivalStationComboBox.setSelectedItem(this.routeSegmentModel.getArrivalStation());
+        arrivalStationComboBox.setSelectedItem(this.segmentModel.getArrivalStation());
 
-        addButton.setEnabled(this.routeSegmentModel.getDepartureStation() != null &&
-                this.routeSegmentModel.getArrivalStation() != null &&
-                this.routeSegmentModel.getDistance() > 0);
+        addButton.setEnabled(this.segmentModel.getDepartureStation() != null &&
+                this.segmentModel.getArrivalStation() != null &&
+                this.segmentModel.getDistance() > 0);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
         if (e.getSource() == cancelButton || e.getSource() == addButton) {
             if (e.getSource() == addButton) {
                 try {
-                    DatabaseUtil.mergeEntity(this.routeSegmentModel);
+                    DatabaseUtil.mergeEntity(this.segmentModel);
                     this.setVisible(false);
                 }
                 catch (RollbackException rex) {
@@ -167,28 +167,28 @@ public class EditRouteSegmentDialog extends JDialog implements FocusListener, Ac
     }
 
     private void setModel() {
-        this.routeSegmentModel.setDepartureStation((Station)departureStationComboBox.getSelectedItem());
-        this.routeSegmentModel.setArrivalStation((Station)arrivalStationComboBox.getSelectedItem());
-        this.routeSegmentModel.setDistance(Integer.valueOf(distanceSpinner.getValue().toString()));
+        this.segmentModel.setDepartureStation((Station)departureStationComboBox.getSelectedItem());
+        this.segmentModel.setArrivalStation((Station)arrivalStationComboBox.getSelectedItem());
+        this.segmentModel.setDistance(Integer.valueOf(distanceSpinner.getValue().toString()));
 
-        addButton.setEnabled(this.routeSegmentModel.getDepartureStation() != null &&
-                this.routeSegmentModel.getArrivalStation() != null &&
-                this.routeSegmentModel.getDistance() > 0);
+        addButton.setEnabled(this.segmentModel.getDepartureStation() != null &&
+                this.segmentModel.getArrivalStation() != null &&
+                this.segmentModel.getDistance() > 0);
     }
 
     private void setArrivalStationComboBoxModel() {
         //Filters out all the stations already set as arrival for that departure station
-        List<RouteSegment> routeSegments = DatabaseUtil.listEntities(RouteSegment.class);
+        List<Segment> segments = DatabaseUtil.listEntities(Segment.class);
 
         List<Station> result = this.stations.stream()
                 //Filters out the selected station
                 .filter(station -> !station.equals(departureStationComboBox.getSelectedItem()))
                 //Filters out route segments having the same departure station as the one selected and arrival station already set
-                .filter(station -> routeSegments.stream()
+                .filter(station -> segments.stream()
                         .noneMatch(routeSegment ->
                                 routeSegment.getDepartureStation().equals(departureStationComboBox.getSelectedItem()) &&
                                         routeSegment.getArrivalStation().equals(station) &&
-                                        !routeSegment.equals(this.routeSegmentModel)))
+                                        !routeSegment.equals(this.segmentModel)))
                 .collect(Collectors.toList());
 
         arrivalStationComboBox.setModel(new DefaultComboBoxModel<>(result.toArray(new Station[0])));

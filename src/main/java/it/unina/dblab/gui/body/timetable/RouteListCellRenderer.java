@@ -1,21 +1,22 @@
-package it.unina.dblab.gui.body.routesegments;
+package it.unina.dblab.gui.body.timetable;
 
-import it.unina.dblab.models.Station;
+import it.unina.dblab.models.Route;
+import it.unina.dblab.models.Train;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class StationListCellRenderer extends JLabel implements ListCellRenderer<Station> {
+public class RouteListCellRenderer extends JLabel implements ListCellRenderer<Route> {
 
-    public StationListCellRenderer() {
+    public RouteListCellRenderer() {
         setOpaque(true);
     }
 
 
     @Override
-    public Component getListCellRendererComponent(JList<? extends Station> list, Station value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends Route> list, Route value, int index, boolean isSelected, boolean cellHasFocus) {
         setText("");
-        if(value != null) {
+        if (value != null) {
             setText(value.getName());
         }
 
@@ -25,18 +26,16 @@ public class StationListCellRenderer extends JLabel implements ListCellRenderer<
             background = new Color(176, 218, 255);
             foreground = Color.WHITE;
 
-        }
-        else if (cellHasFocus) {
+        } else if (cellHasFocus) {
             background = Color.WHITE;
 
-        }
-        else {
+        } else {
             background = Color.WHITE;
             foreground = Color.BLACK;
         }
 
         setBackground(background);
-     //   setForeground(foreground);
+        //   setForeground(foreground);
 
         return this;
     }

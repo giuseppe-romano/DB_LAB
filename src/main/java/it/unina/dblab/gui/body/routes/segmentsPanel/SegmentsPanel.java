@@ -3,9 +3,9 @@ package it.unina.dblab.gui.body.routes.segmentsPanel;
 import it.unina.dblab.gui.body.routes.EditRouteDialog;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.Route2RouteSegment;
-import it.unina.dblab.models.Route2RouteSegmentId;
 import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.RouteSegmentId;
+import it.unina.dblab.models.Segment;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class SegmentsPanel extends JPanel implements ActionListener, DocumentListener {
-    private List<RouteSegment> segments = DatabaseUtil.listEntities(RouteSegment.class);
+    private List<Segment> segments = DatabaseUtil.listEntities(Segment.class);
 
     private EditRouteDialog editRouteDialog;
     private Route routeModel;
@@ -52,9 +52,9 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
         //column Segmento
         segmentCombobox = new JComboBox(segments.toArray());
         segmentCombobox.addActionListener(this);
-        segmentCombobox.setRenderer(new ListCellRenderer<RouteSegment>() {
+        segmentCombobox.setRenderer(new ListCellRenderer<Segment>() {
             @Override
-            public Component getListCellRendererComponent(JList list, RouteSegment value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList list, Segment value, int index, boolean isSelected, boolean cellHasFocus) {
                 String text = Optional.ofNullable(value)
                         .map(segment -> segment.getDepartureStation().getName() + " - " + segment.getArrivalStation().getName())
                         .orElse("");
@@ -70,24 +70,21 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
             }
         });
         TableColumn col = segmentsTable.getColumnModel().getColumn(0);
-        col.setCellRenderer(new TableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                String text = Optional.ofNullable(value)
-                        .map(obj -> (RouteSegment) obj)
-                        .map(segment -> segment.getDepartureStation().getName() + " - " + segment.getArrivalStation().getName())
-                        .orElse("");
+        col.setCellRenderer((table, value, isSelected, hasFocus, row, column) -> {
+            String text = Optional.ofNullable(value)
+                    .map(obj -> (Segment) obj)
+                    .map(segment -> segment.getDepartureStation().getName() + " - " + segment.getArrivalStation().getName())
+                    .orElse("");
 
-                JLabel label = new JLabel(text);
-                label.setOpaque(true);
-                label.setBackground(Color.WHITE);
+            JLabel label = new JLabel(text);
+            label.setOpaque(true);
+            label.setBackground(Color.WHITE);
 
-                if (isSelected) {
-                    label.setBackground(new Color(176, 218, 255));
-                }
-
-                return label;
+            if (isSelected) {
+                label.setBackground(new Color(176, 218, 255));
             }
+
+            return label;
         });
         col.setCellEditor(new DefaultCellEditor(segmentCombobox));
 
@@ -119,10 +116,10 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addSegmentButton) {
-            Route2RouteSegmentId id = new Route2RouteSegmentId();
+            RouteSegmentId id = new RouteSegmentId();
             id.setRouteId(routeModel.getId());
 
-            Route2RouteSegment newRecord = new Route2RouteSegment();
+            RouteSegment newRecord = new RouteSegment();
             newRecord.setId(id);
             newRecord.setPerformStop(true);
             newRecord.setRoute(routeModel);

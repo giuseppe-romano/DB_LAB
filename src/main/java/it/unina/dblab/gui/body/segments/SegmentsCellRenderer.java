@@ -1,4 +1,4 @@
-package it.unina.dblab.gui.body.routesegments;
+package it.unina.dblab.gui.body.segments;
 
 
 import javax.swing.*;
@@ -6,7 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-public class RouteSegmentsCellRenderer implements TableCellRenderer {
+public class SegmentsCellRenderer implements TableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         JLabel label = new JLabel (value.toString());

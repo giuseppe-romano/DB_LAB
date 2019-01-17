@@ -18,7 +18,7 @@ public class BodyContainer extends JPanel {
 
         this.add(ManageTrainsPanel.NAME, new ManageTrainsPanel(this));
         this.add(ManageStationsPanel.NAME, new ManageStationsPanel(this));
-        this.add(ManageRouteSegmentsPanel.NAME, new ManageRouteSegmentsPanel(this));
+        this.add(ManageSegmentsPanel.NAME, new ManageSegmentsPanel(this));
         this.add(ManageRoutesPanel.NAME, new ManageRoutesPanel(this));
         this.add(ManageTimetablePanel.NAME, new ManageTimetablePanel(this));
     }

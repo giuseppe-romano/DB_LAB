@@ -24,7 +24,7 @@ public class Route implements Serializable, JpaEntity<Route> {
             orphanRemoval = true
     )
     @OrderBy("sequence ASC")
-    private List<Route2RouteSegment> routeSegments;
+    private List<RouteSegment> routeSegments;
 
     @Column(name = "NAME", nullable = false)
     private String name;
@@ -41,11 +41,11 @@ public class Route implements Serializable, JpaEntity<Route> {
         this.id = id;
     }
 
-    public List<Route2RouteSegment> getRouteSegments() {
+    public List<RouteSegment> getRouteSegments() {
         return routeSegments;
     }
 
-    public void setRouteSegments(List<Route2RouteSegment> routeSegments) {
+    public void setRouteSegments(List<RouteSegment> routeSegments) {
         this.routeSegments = routeSegments;
     }
 
@@ -86,13 +86,13 @@ public class Route implements Serializable, JpaEntity<Route> {
         newObject.setActive(this.isActive());
         newObject.setName(this.getName());
 
-        List<Route2RouteSegment> route2RouteSegments =
+        List<RouteSegment> routeSegments =
         Optional.ofNullable(this.getRouteSegments()).orElse(new ArrayList<>())
                 .stream()
                 .map(route2RouteSegment -> route2RouteSegment.copy())
                 .collect(Collectors.toList());
 
-        newObject.setRouteSegments(route2RouteSegments);
+        newObject.setRouteSegments(routeSegments);
 
         return newObject;
     }

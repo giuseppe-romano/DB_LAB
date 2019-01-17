@@ -1,7 +1,7 @@
 package it.unina.dblab.gui.body.routes;
 
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.Route2RouteSegment;
+import it.unina.dblab.models.RouteSegment;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -39,12 +39,13 @@ public class RouteListingComponent extends JPanel {
         title1.setBackground(invalidColor);
         title1.setLayout(new FlowLayout(FlowLayout.LEADING));
         title1.add(new JLabel(route.getName()));
+        title1.add(new JLabel("(Effettua " + getTotalStops(route) + " fermate)"));
         title.add(title1);
 
         JPanel title2 = new JPanel();
         title2.setBackground(invalidColor);
         title2.setLayout(new FlowLayout(FlowLayout.TRAILING));
-        String labelText = "Completa i segmenti (La tratta non e' continua)";
+        String labelText = "(La tratta non e' completa o presenta dei cicli)";
         if(route.isActive()) {
             title1.setBackground(validColor);
             title2.setBackground(validColor);
@@ -73,13 +74,13 @@ public class RouteListingComponent extends JPanel {
 
     private List<JPanel> composePath(Route route) {
         List<JPanel> segments = new ArrayList<>();
-        for (Route2RouteSegment routeSegment : route.getRouteSegments()) {
+        for (RouteSegment routeSegment : route.getRouteSegments()) {
             segments.add(this.createSegment(routeSegment));
         }
         return segments;
     }
 
-    private JPanel createSegment(Route2RouteSegment routeSegment) {
+    private JPanel createSegment(RouteSegment routeSegment) {
         JPanel segment = new JPanel();
         segment.setBackground(new Color(176, 218, 255));
         segment.setMinimumSize(new Dimension(120, 83));
@@ -101,10 +102,18 @@ public class RouteListingComponent extends JPanel {
 
     private Integer getTotalDistance(Route route) {
         Integer totalDistance = 0;
-        for (Route2RouteSegment routeSegment : route.getRouteSegments()) {
+        for (RouteSegment routeSegment : route.getRouteSegments()) {
             totalDistance += routeSegment.getSegment().getDistance();
         }
         return totalDistance;
+    }
+
+    private Integer getTotalStops(Route route) {
+        Integer totalStops = 0;
+        for (RouteSegment routeSegment : route.getRouteSegments()) {
+            totalStops += (routeSegment.isPerformStop() ? 1 : 0);
+        }
+        return totalStops;
     }
 
     @Override

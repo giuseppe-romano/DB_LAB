@@ -1,7 +1,7 @@
-package it.unina.dblab.gui.body.routesegments;
+package it.unina.dblab.gui.body.segments;
 
 import it.unina.dblab.gui.utility.DatabaseUtil;
-import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Segment;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -9,26 +9,26 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class RouteSegmentsTableModel implements TableModel {
+public class SegmentsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
             "#ID", "Statzione di Partenza", "Stazione di Arrivo", "Distanza"
     };
 
-    private List<RouteSegment> routeSegments;
+    private List<Segment> segments;
 
-    public RouteSegmentsTableModel() {
+    public SegmentsTableModel() {
         this.reload();
     }
 
     public void reload() {
-        routeSegments = DatabaseUtil.listEntities(RouteSegment.class);
-        Collections.sort(routeSegments, Comparator.comparing(e -> e.getDepartureStation().getName()));
+        segments = DatabaseUtil.listEntities(Segment.class);
+        Collections.sort(segments, Comparator.comparing(e -> e.getDepartureStation().getName()));
     }
 
     @Override
     public int getRowCount() {
-        return this.routeSegments.size();
+        return this.segments.size();
     }
 
     @Override
@@ -60,16 +60,16 @@ public class RouteSegmentsTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RouteSegment routeSegment = this.routeSegments.get(rowIndex);
+        Segment segment = this.segments.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return routeSegment.getId();
+                return segment.getId();
             case 1:
-                return routeSegment.getDepartureStation().getName();
+                return segment.getDepartureStation().getName();
             case 2:
-                return routeSegment.getArrivalStation().getName();
+                return segment.getArrivalStation().getName();
             case 3:
-                return routeSegment.getDistance();
+                return segment.getDistance();
         }
         return null;
     }
@@ -89,7 +89,7 @@ public class RouteSegmentsTableModel implements TableModel {
 
     }
 
-    public RouteSegment getEntityAt(int rowIndex) {
-        return this.routeSegments.get(rowIndex);
+    public Segment getEntityAt(int rowIndex) {
+        return this.segments.get(rowIndex);
     }
 }

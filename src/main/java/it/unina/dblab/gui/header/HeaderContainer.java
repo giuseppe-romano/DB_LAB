@@ -71,7 +71,7 @@ public class HeaderContainer extends JPanel implements ActionListener {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageStationsPanel.NAME);
         }
         else if(e.getSource() == manageRouteSegmentsButton) {
-            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRouteSegmentsPanel.NAME);
+            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageSegmentsPanel.NAME);
         }
         else if(e.getSource() == manageRoutesButton) {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageRoutesPanel.NAME);

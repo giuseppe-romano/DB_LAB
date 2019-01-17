@@ -2,35 +2,44 @@ package it.unina.dblab.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "TIMETABLE")
 public class Timetable implements Serializable, JpaEntity<Timetable> {
 
     @Id
-    @SequenceGenerator(name="route_generator", sequenceName = "ROUTES_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "route_generator")
+    @SequenceGenerator(name = "timetable_generator", sequenceName = "TIMETABLE_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "timetable_generator")
     @Column(name = "ID", unique = true)
     private Integer id;
 
-    @OneToMany(fetch = FetchType.EAGER,
-            mappedBy = "route",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @OrderBy("sequence ASC")
-    private List<Route2RouteSegment> routeSegments;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TRAIN_ID")
+    private Train train;
 
-    @Column(name = "NAME", nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ROUTE_ID")
+    private Route route;
 
-    @Column(name = "ACTIVE")
-    private boolean active;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "SCHEDULED_DATE", nullable = false)
+    private Date scheduledDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "DEPARTURE_DATE")
+    private Date departureDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ARRIVAL_DATE")
+    private Date arrivalDate;
+
+    @Column(name = "DEPARTURE_PLATFORM")
+    private Integer departurePlatform;
+
+    @Column(name = "ARRIVAL_PLATFORM")
+    private Integer arrivalPlatform;
 
     @Override
     public Integer getId() {
@@ -41,58 +50,93 @@ public class Timetable implements Serializable, JpaEntity<Timetable> {
         this.id = id;
     }
 
-    public List<Route2RouteSegment> getRouteSegments() {
-        return routeSegments;
+    public Train getTrain() {
+        return train;
     }
 
-    public void setRouteSegments(List<Route2RouteSegment> routeSegments) {
-        this.routeSegments = routeSegments;
+    public void setTrain(Train train) {
+        this.train = train;
     }
 
-    public boolean isActive() {
-        return active;
+    public Route getRoute() {
+        return route;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setRoute(Route route) {
+        this.route = route;
     }
 
-    public String getName() {
-        return name;
+    public Date getScheduledDate() {
+        return scheduledDate;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setScheduledDate(Date scheduledDate) {
+        this.scheduledDate = scheduledDate;
+    }
+
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public Integer getDeparturePlatform() {
+        return departurePlatform;
+    }
+
+    public void setDeparturePlatform(Integer departurePlatform) {
+        this.departurePlatform = departurePlatform;
+    }
+
+    public Integer getArrivalPlatform() {
+        return arrivalPlatform;
+    }
+
+    public void setArrivalPlatform(Integer arrivalPlatform) {
+        this.arrivalPlatform = arrivalPlatform;
+    }
+
+    public Date getDepartureDate() {
+        return departureDate;
+    }
+
+    public void setDepartureDate(Date departureDate) {
+        this.departureDate = departureDate;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Timetable route = (Timetable) o;
-        return Objects.equals(id, route.id);
+        Timetable timetable = (Timetable) o;
+        return Objects.equals(train, timetable.train) &&
+                Objects.equals(route, timetable.route) &&
+                Objects.equals(scheduledDate, timetable.scheduledDate);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id);
+        return Objects.hash(train, route, scheduledDate);
     }
 
     @Override
     public Timetable copy() {
         Timetable newObject = new Timetable();
         newObject.setId(this.getId());
-        newObject.setActive(this.isActive());
-        newObject.setName(this.getName());
-
-        List<Route2RouteSegment> route2RouteSegments =
-        Optional.ofNullable(this.getRouteSegments()).orElse(new ArrayList<>())
-                .stream()
-                .map(route2RouteSegment -> route2RouteSegment.copy())
-                .collect(Collectors.toList());
-
-        newObject.setRouteSegments(route2RouteSegments);
+        if (this.getRoute() != null) {
+            newObject.setRoute(this.getRoute().copy());
+        }
+        if (this.getTrain() != null) {
+            newObject.setTrain(this.getTrain().copy());
+        }
+        newObject.setScheduledDate(this.getScheduledDate());
+        newObject.setDepartureDate(this.getDepartureDate());
+        newObject.setArrivalDate(this.getArrivalDate());
+        newObject.setDeparturePlatform(this.getDeparturePlatform());
+        newObject.setArrivalPlatform(this.getArrivalPlatform());
 
         return newObject;
     }

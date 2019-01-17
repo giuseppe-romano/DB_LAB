@@ -1,10 +1,10 @@
 package it.unina.dblab.gui.body;
 
-import it.unina.dblab.gui.body.routesegments.EditRouteSegmentDialog;
-import it.unina.dblab.gui.body.routesegments.RouteSegmentsCellRenderer;
-import it.unina.dblab.gui.body.routesegments.RouteSegmentsTableModel;
+import it.unina.dblab.gui.body.segments.EditSegmentDialog;
+import it.unina.dblab.gui.body.segments.SegmentsCellRenderer;
+import it.unina.dblab.gui.body.segments.SegmentsTableModel;
 import it.unina.dblab.gui.utility.DatabaseUtil;
-import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Segment;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.RollbackException;
@@ -18,14 +18,14 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Optional;
 
-public class ManageRouteSegmentsPanel extends JPanel {
+public class ManageSegmentsPanel extends JPanel {
     public static final String NAME = "MANAGE_ROUTE_SEGMENTS";
 
     private BodyContainer parent;
 
     private JTable routeSegmentsTable;
 
-    public ManageRouteSegmentsPanel(BodyContainer parent) {
+    public ManageSegmentsPanel(BodyContainer parent) {
         this.parent = parent;
 
         this.setBackground(Color.WHITE);
@@ -56,14 +56,14 @@ public class ManageRouteSegmentsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // create a dialog Box
-                RouteSegment routeSegmentModel = new RouteSegment();
+                Segment segmentModel = new Segment();
 
-                JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
+                JDialog dialog = new EditSegmentDialog(segmentModel);
                 dialog.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentHidden(ComponentEvent e) {
                         super.componentHidden(e);
-                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                        ((SegmentsTableModel) routeSegmentsTable.getModel()).reload();
                         routeSegmentsTable.revalidate();
                         routeSegmentsTable.repaint();
                     }
@@ -86,14 +86,14 @@ public class ManageRouteSegmentsPanel extends JPanel {
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da modificare!");
                 } else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
+                    Segment segmentModel = ((SegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
                     // create a dialog Box
-                    JDialog dialog = new EditRouteSegmentDialog(routeSegmentModel);
+                    JDialog dialog = new EditSegmentDialog(segmentModel);
                     dialog.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                            ((SegmentsTableModel) routeSegmentsTable.getModel()).reload();
                             routeSegmentsTable.revalidate();
                             routeSegmentsTable.repaint();
                         }
@@ -118,13 +118,13 @@ public class ManageRouteSegmentsPanel extends JPanel {
                     JOptionPane.showMessageDialog(parent, "Seleziona un elemento da eliminare!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                 }
                 else {
-                    RouteSegment routeSegmentModel = ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
+                    Segment segmentModel = ((SegmentsTableModel) routeSegmentsTable.getModel()).getEntityAt(selectedRow);
 
                     try {
-                        DatabaseUtil.removeEntity(routeSegmentModel);
+                        DatabaseUtil.removeEntity(segmentModel);
 
                         routeSegmentsTable.clearSelection();
-                        ((RouteSegmentsTableModel) routeSegmentsTable.getModel()).reload();
+                        ((SegmentsTableModel) routeSegmentsTable.getModel()).reload();
                         routeSegmentsTable.revalidate();
                         routeSegmentsTable.repaint();
 
@@ -137,7 +137,7 @@ public class ManageRouteSegmentsPanel extends JPanel {
                                 .filter(sqlException -> sqlException != null)
                                 .map(sqlException -> sqlException.getMessage())
                                 .orElse("Impossibile effettuare l'operazione");
-                        JOptionPane.showMessageDialog(ManageRouteSegmentsPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ManageSegmentsPanel.this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -152,14 +152,14 @@ public class ManageRouteSegmentsPanel extends JPanel {
         tablePanel.setBackground(Color.WHITE);
         tablePanel.setPreferredSize(new Dimension(100, 100));
 
-        routeSegmentsTable = new JTable(new RouteSegmentsTableModel());
+        routeSegmentsTable = new JTable(new SegmentsTableModel());
         routeSegmentsTable.setOpaque(false);
         routeSegmentsTable.setPreferredScrollableViewportSize(new Dimension(860, 600));
         routeSegmentsTable.setFillsViewportHeight(true);
         routeSegmentsTable.setRowHeight(35);
         routeSegmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        TableCellRenderer cellRenderer = new RouteSegmentsCellRenderer();
+        TableCellRenderer cellRenderer = new SegmentsCellRenderer();
         //column ID
         TableColumn col = routeSegmentsTable.getColumnModel().getColumn(0);
         col.setCellRenderer(cellRenderer);

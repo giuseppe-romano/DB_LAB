@@ -1,7 +1,7 @@
 package it.unina.dblab.gui.body.routes.segmentsPanel;
 
-import it.unina.dblab.models.Route2RouteSegment;
 import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Segment;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -13,9 +13,9 @@ public class SegmentsTableModel implements TableModel {
             "Segmento", "Ferma?"
     };
 
-    private java.util.List<Route2RouteSegment> routeSegments;
+    private java.util.List<RouteSegment> routeSegments;
 
-    public SegmentsTableModel(List<Route2RouteSegment> routeSegments) {
+    public SegmentsTableModel(List<RouteSegment> routeSegments) {
         this.routeSegments = Optional.ofNullable(routeSegments).orElse(new ArrayList<>());
     }
 
@@ -52,7 +52,7 @@ public class SegmentsTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Route2RouteSegment routeSegment = this.routeSegments.get(rowIndex);
+        RouteSegment routeSegment = this.routeSegments.get(rowIndex);
         switch (columnIndex) {
             case 0:
                 return routeSegment.getSegment();
@@ -72,10 +72,10 @@ public class SegmentsTableModel implements TableModel {
 
         switch (columnIndex) {
             case 0:
-                RouteSegment segment = (RouteSegment) aValue;
+                Segment segment = (Segment) aValue;
                 routeSegments.get(rowIndex).setSegment(segment);
                 if(segment != null && routeSegments.get(rowIndex).getId() != null) {
-                    routeSegments.get(rowIndex).getId().setRouteSegmentId(segment.getId());
+                    routeSegments.get(rowIndex).getId().setSegmentId(segment.getId());
                 }
                 break;
             case 1:
