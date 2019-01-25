@@ -1,38 +1,36 @@
-CREATE OR REPLACE VIEW BOOKINGS AS
-  
-SELECT * FROM (         
---Stazioni di inizio tratta
-SELECT st.* from 
+CREATE OR REPLACE VIEW BOOKING_DEPARTURES AS
+SELECT sg.DEPARTURE_STATION_ID, 
+       sg.ARRIVAL_STATION_ID,
+       sg.DISTANCE,
+       tt.SCHEDULED_DATE,
+       COMPUTE_TIME(tt.ID, sg.DEPARTURE_STATION_ID, sg.ARRIVAL_STATION_ID) FORESEEN_ARRIVAL_DATE,
+       rs.ROUTE_ID,
+       rs.PERFORM_STOP,
+       rs.IS_TERMINAL, 
+       tt.TRAIN_ID,
+       tt.DEPARTURE_PLATFORM,
+       tt.ARRIVAL_PLATFORM,
+       rs.SEQUENCE_NUMBER
+       FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg, TIMETABLE tt
+            WHERE rs.SEGMENT_ID = sg.ID
+                AND tt.ROUTE_ID = rs.ROUTE_ID
+                AND rs.SEQUENCE_NUMBER >= (SELECT MIN(rs2.SEQUENCE_NUMBER) FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                                            WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID)-- AND sg2.DEPARTURE_STATION_ID = 1) 
+                AND rs.SEQUENCE_NUMBER <= (SELECT MAX(rs2.SEQUENCE_NUMBER) FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                                            WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID)-- AND sg2.ARRIVAL_STATION_ID = 15) 
+                ORDER BY tt.SCHEDULED_DATE ASC
+/
+
+-------------------------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW BOOKING_ARRIVALS AS
+SELECT DISTINCT st.*, r.ID AS ROUTE_ID from 
   ROUTES r, ROUTES_2_SEGMENTS rs, SEGMENTS sg, STATIONS st
 WHERE 
   r.ID = rs.ROUTE_ID
   AND rs.SEGMENT_ID = sg.ID
-  AND sg.DEPARTURE_STATION_ID = st.ID
-  AND rs.SEQUENCE_NUMBER = (SELECT MIN(SEQUENCE_NUMBER) FROM ROUTES_2_SEGMENTS rs2
-                                 WHERE r.ID = rs2.ROUTE_ID)
+  AND sg.ARRIVAL_STATION_ID = st.ID AND (rs.PERFORM_STOP = 1 OR rs.IS_TERMINAL = 1)
   AND r.ACTIVE = 1
-  
-  UNION
---Stazione intermedie di partenza
-SELECT st2.* from 
-  ROUTES r2, ROUTES_2_SEGMENTS rs2, SEGMENTS sg2, STATIONS st2
-WHERE 
-  r2.ID = rs2.ROUTE_ID
-  AND rs2.SEGMENT_ID = sg2.ID
-  AND sg2.ARRIVAL_STATION_ID = st2.ID
-  AND rs2.PERFORM_STOP = 1
-  AND rs2.IS_TERMINAL = 0
-  AND r2.ACTIVE = 1
-) partenza,
-  
-(
---Stazioni intermedie e capolinea di arrivo
-SELECT st2.* from 
-  ROUTES r2, ROUTES_2_SEGMENTS rs2, SEGMENTS sg2, STATIONS st2
-WHERE 
-  r2.ID = rs2.ROUTE_ID
-  AND rs2.SEGMENT_ID = sg2.ID
-  AND sg2.ARRIVAL_STATION_ID = st2.ID
-  AND (rs2.PERFORM_STOP = 1 OR rs2.IS_TERMINAL = 1)
-  AND r2.ACTIVE = 1
-) arrivo where partenza.id = arrivo.id
+/
+
+

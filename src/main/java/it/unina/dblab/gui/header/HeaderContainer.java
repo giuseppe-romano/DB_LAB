@@ -18,6 +18,8 @@ public class HeaderContainer extends JPanel implements ActionListener {
     private HeaderButton manageRoutesButton = new HeaderButton("Gestisci Tratte di Percorrenza");
     private HeaderButton manageTimetableButton = new HeaderButton("Gestisci Orari");
 
+    private HeaderButton searchBookingButton = new HeaderButton("Trova il Tuo Viaggio");
+
     public HeaderContainer(HeavenRail parent) {
         this.parent = parent;
 
@@ -31,11 +33,18 @@ public class HeaderContainer extends JPanel implements ActionListener {
         manageRouteSegmentsButton.addActionListener(this);
         manageRoutesButton.addActionListener(this);
         manageTimetableButton.addActionListener(this);
+        searchBookingButton.addActionListener(this);
+
+        searchBookingButton.setForeground(new Color(154, 52, 9));
+
         this.add(manageTrainsButton);
         this.add(manageStationsButton);
         this.add(manageRouteSegmentsButton);
         this.add(manageRoutesButton);
         this.add(manageTimetableButton);
+
+        this.add(new JLabel("                                                     "));
+        this.add(searchBookingButton);
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(manageTrainsButton);
@@ -43,6 +52,7 @@ public class HeaderContainer extends JPanel implements ActionListener {
         buttonGroup.add(manageRouteSegmentsButton);
         buttonGroup.add(manageRoutesButton);
         buttonGroup.add(manageTimetableButton);
+        buttonGroup.add(searchBookingButton);
 
         manageTrainsButton.setSelected(true);
     }
@@ -78,6 +88,9 @@ public class HeaderContainer extends JPanel implements ActionListener {
         }
         else if(e.getSource() == manageTimetableButton) {
             ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, ManageTimetablePanel.NAME);
+        }
+        else if(e.getSource() == searchBookingButton) {
+            ((CardLayout)bodyContainer.getLayout()).show(bodyContainer, SearchBookingPanel.NAME);
         }
     }
 
