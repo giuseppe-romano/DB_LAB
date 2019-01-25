@@ -40,9 +40,9 @@ END;
 
 -------------------------------------------------------------------------------------------
 /*
-
+  This function computes the foreseen departure date for each path 
 */
-create or replace FUNCTION COMPUTE_TIME(timeTableId IN NUMBER, departureStationId IN NUMBER, arrivalStationId IN NUMBER)
+create or replace FUNCTION COMPUTE_DEPARTURE_DATE(timeTableId IN NUMBER, departureStationId IN NUMBER)
 RETURN TIMESTAMP 
 IS
     timetableRec TIMETABLE%ROWTYPE;
@@ -66,8 +66,48 @@ BEGIN
         SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
             WHERE rs.SEGMENT_ID = sg.ID
                 AND rs.ROUTE_ID = timetableRec.ROUTE_ID
-                AND rs.SEQUENCE_NUMBER >= (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                AND rs.SEQUENCE_NUMBER < (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
                                             WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.DEPARTURE_STATION_ID = departureStationId) 
+                ORDER BY rs.SEQUENCE_NUMBER ASC)
+    LOOP
+        --This formula adds the time needed for the that distance with that train speed
+        tmpDate := tmpDate + (segmentRec.DISTANCE / trainSpeed)/24;
+           
+    END LOOP;
+        
+    RETURN tmpDate;
+END;
+/
+
+
+-------------------------------------------------------------------------------------------
+/*
+  This function computes the foreseen arrival date for each path 
+*/
+create or replace FUNCTION COMPUTE_ARRIVAL_DATE(timeTableId IN NUMBER, arrivalStationId IN NUMBER)
+RETURN TIMESTAMP 
+IS
+    timetableRec TIMETABLE%ROWTYPE;
+    trainSpeed NUMBER;
+        
+    tmpDate TIMESTAMP;
+BEGIN
+    --Get the timetable record
+    SELECT * INTO timetableRec FROM TIMETABLE
+        WHERE ID = timeTableId;
+        
+    
+
+    --Get the nominal speed of the train for that timetable record
+    SELECT t.NOMINAL_SPEED INTO trainSpeed FROM TRAINS t
+        WHERE ID = timetableRec.TRAIN_ID;
+        
+    --Get all the segments of the route for that timetable record
+    tmpDate := timetableRec.SCHEDULED_DATE;
+    FOR segmentRec IN (
+        SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
+            WHERE rs.SEGMENT_ID = sg.ID
+                AND rs.ROUTE_ID = timetableRec.ROUTE_ID
                 AND rs.SEQUENCE_NUMBER <= (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
                                             WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.ARRIVAL_STATION_ID = arrivalStationId) 
                 ORDER BY rs.SEQUENCE_NUMBER ASC)
