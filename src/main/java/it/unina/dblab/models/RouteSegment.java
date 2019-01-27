@@ -11,9 +11,6 @@ public class RouteSegment implements Serializable, JpaEntity<RouteSegment> {
     @EmbeddedId
     private RouteSegmentId id;
 
-    @Column(name = "PERFORM_STOP")
-    private boolean performStop;
-
     @Column(name = "SEQUENCE_NUMBER")
     private Integer sequence;
 
@@ -35,14 +32,6 @@ public class RouteSegment implements Serializable, JpaEntity<RouteSegment> {
 
     public void setId(RouteSegmentId id) {
         this.id = id;
-    }
-
-    public boolean isPerformStop() {
-        return performStop;
-    }
-
-    public void setPerformStop(boolean performStop) {
-        this.performStop = performStop;
     }
 
     public Integer getSequence() {
@@ -95,7 +84,6 @@ public class RouteSegment implements Serializable, JpaEntity<RouteSegment> {
     public RouteSegment copy() {
         RouteSegment newObject = new RouteSegment();
         newObject.setId(this.getId().copy());
-        newObject.setPerformStop(this.isPerformStop());
         newObject.setSequence(this.getSequence());
         newObject.setRoute(this.getRoute());
         newObject.setSegment(this.getSegment().copy());

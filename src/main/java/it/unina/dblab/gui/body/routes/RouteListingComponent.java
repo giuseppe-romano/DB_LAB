@@ -39,14 +39,14 @@ public class RouteListingComponent extends JPanel {
         title1.setBackground(invalidColor);
         title1.setLayout(new FlowLayout(FlowLayout.LEADING));
         title1.add(new JLabel(route.getName()));
-        title1.add(new JLabel("(Effettua " + getTotalStops(route) + " fermate)"));
+        title1.add(new JLabel("(Effettua " + (route.getRouteSegments().size() - 1) + " fermate)"));
         title.add(title1);
 
         JPanel title2 = new JPanel();
         title2.setBackground(invalidColor);
         title2.setLayout(new FlowLayout(FlowLayout.TRAILING));
         String labelText = "(La tratta non e' completa o presenta dei cicli)";
-        if(route.isActive()) {
+        if (route.isActive()) {
             title1.setBackground(validColor);
             title2.setBackground(validColor);
             labelText = "Distanza totale: " + this.getTotalDistance(route) + "Km";
@@ -95,7 +95,6 @@ public class RouteListingComponent extends JPanel {
         segment.add(new JLabel("Da: " + routeSegment.getSegment().getDepartureStation().getName()));
         segment.add(new JLabel("A: " + routeSegment.getSegment().getArrivalStation().getName()));
         segment.add(new JLabel("Distanza: " + routeSegment.getSegment().getDistance() + " Km"));
-        segment.add(new JLabel("Fermata: " + (routeSegment.isPerformStop() ? "SI" : "NO")));
 
         return segment;
     }
@@ -108,25 +107,17 @@ public class RouteListingComponent extends JPanel {
         return totalDistance;
     }
 
-    private Integer getTotalStops(Route route) {
-        Integer totalStops = 0;
-        for (RouteSegment routeSegment : route.getRouteSegments()) {
-            totalStops += (routeSegment.isPerformStop() ? 1 : 0);
-        }
-        return totalStops;
-    }
-
     @Override
     public void setBackground(Color bg) {
         super.setBackground(bg);
 
-        if(title != null) {
+        if (title != null) {
             title.setBackground(bg);
         }
-        if(body != null) {
+        if (body != null) {
             body.setBackground(bg);
         }
-        if(scrollPane != null) {
+        if (scrollPane != null) {
             scrollPane.setBackground(bg);
         }
     }

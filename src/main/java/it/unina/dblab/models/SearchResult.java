@@ -2,37 +2,58 @@ package it.unina.dblab.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Date;
 
+@SqlResultSetMapping(name = "SearchResult", classes = {
+        @ConstructorResult(targetClass = SearchResult.class,
+                columns = {
+                        @ColumnResult(name = "ID", type = Integer.class),
+                        @ColumnResult(name = "DEPARTURE_STATION_ID", type = Integer.class),
+                        @ColumnResult(name = "ARRIVAL_STATION_ID", type = Integer.class),
+                        @ColumnResult(name = "TRAIN_ID", type = Integer.class),
+                        @ColumnResult(name = "ROUTE_ID", type = Integer.class),
+                        @ColumnResult(name = "DISTANCE", type = Integer.class),
+                        @ColumnResult(name = "DEPARTURE_DATE", type = Date.class),
+                        @ColumnResult(name = "ARRIVAL_DATE", type = Date.class),
+                        @ColumnResult(name = "DEPARTURE_PLATFORM", type = Integer.class),
+                        @ColumnResult(name = "ARRIVAL_PLATFORM", type = Integer.class),
+                        @ColumnResult(name = "SEQUENCE_NUMBER", type = Integer.class),
+                        @ColumnResult(name = "IS_TERMINAL", type = boolean.class)
+                })
+})
 @Entity
-@Table(name = "ROUTES")
-public class SearchResult implements Serializable, JpaEntity<SearchResult> {
+public class SearchResult implements Serializable {
+
 
     @Id
-    @SequenceGenerator(name="route_generator", sequenceName = "ROUTES_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "route_generator")
-    @Column(name = "ID", unique = true)
     private Integer id;
+    private Integer departureStationId;
+    private Integer arrivalStationId;
+    private Integer trainId;
+    private Integer routeId;
+    private Integer distance;
+    private Date departureDate;
+    private Date arrivalDate;
+    private Integer departurePlatform;
+    private Integer arrivalPlatform;
+    private Integer sequence;
+    private boolean terminal;
 
-    @OneToMany(fetch = FetchType.EAGER,
-            mappedBy = "route",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @OrderBy("sequence ASC")
-    private List<RouteSegment> routeSegments;
+    public SearchResult(Integer id, Integer departureStationId, Integer arrivalStationId, Integer trainId, Integer routeId, Integer distance, Date departureDate, Date arrivalDate, Integer departurePlatform, Integer arrivalPlatform, Integer sequence, boolean terminal) {
+        this.id = id;
+        this.departureStationId = departureStationId;
+        this.arrivalStationId = arrivalStationId;
+        this.trainId = trainId;
+        this.routeId = routeId;
+        this.distance = distance;
+        this.departureDate = departureDate;
+        this.arrivalDate = arrivalDate;
+        this.departurePlatform = departurePlatform;
+        this.arrivalPlatform = arrivalPlatform;
+        this.sequence = sequence;
+        this.terminal = terminal;
+    }
 
-    @Column(name = "NAME", nullable = false)
-    private String name;
-
-    @Column(name = "ACTIVE")
-    private boolean active;
-
-    @Override
     public Integer getId() {
         return id;
     }
@@ -41,59 +62,91 @@ public class SearchResult implements Serializable, JpaEntity<SearchResult> {
         this.id = id;
     }
 
-    public List<RouteSegment> getRouteSegments() {
-        return routeSegments;
+    public Integer getDepartureStationId() {
+        return departureStationId;
     }
 
-    public void setRouteSegments(List<RouteSegment> routeSegments) {
-        this.routeSegments = routeSegments;
+    public void setDepartureStationId(Integer departureStationId) {
+        this.departureStationId = departureStationId;
     }
 
-    public boolean isActive() {
-        return active;
+    public Integer getArrivalStationId() {
+        return arrivalStationId;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setArrivalStationId(Integer arrivalStationId) {
+        this.arrivalStationId = arrivalStationId;
     }
 
-    public String getName() {
-        return name;
+    public Integer getTrainId() {
+        return trainId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTrainId(Integer trainId) {
+        this.trainId = trainId;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SearchResult route = (SearchResult) o;
-        return Objects.equals(id, route.id);
+    public Integer getRouteId() {
+        return routeId;
     }
 
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(id);
+    public void setRouteId(Integer routeId) {
+        this.routeId = routeId;
     }
 
-    @Override
-    public SearchResult copy() {
-        SearchResult newObject = new SearchResult();
-        newObject.setId(this.getId());
-        newObject.setActive(this.isActive());
-        newObject.setName(this.getName());
+    public Integer getDistance() {
+        return distance;
+    }
 
-        List<RouteSegment> routeSegments =
-        Optional.ofNullable(this.getRouteSegments()).orElse(new ArrayList<>())
-                .stream()
-                .map(route2RouteSegment -> route2RouteSegment.copy())
-                .collect(Collectors.toList());
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
 
-        newObject.setRouteSegments(routeSegments);
+    public Date getDepartureDate() {
+        return departureDate;
+    }
 
-        return newObject;
+    public void setDepartureDate(Date departureDate) {
+        this.departureDate = departureDate;
+    }
+
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public Integer getDeparturePlatform() {
+        return departurePlatform;
+    }
+
+    public void setDeparturePlatform(Integer departurePlatform) {
+        this.departurePlatform = departurePlatform;
+    }
+
+    public Integer getArrivalPlatform() {
+        return arrivalPlatform;
+    }
+
+    public void setArrivalPlatform(Integer arrivalPlatform) {
+        this.arrivalPlatform = arrivalPlatform;
+    }
+
+    public Integer getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
+    }
+
+    public boolean isTerminal() {
+        return terminal;
+    }
+
+    public void setTerminal(boolean terminal) {
+        this.terminal = terminal;
     }
 }

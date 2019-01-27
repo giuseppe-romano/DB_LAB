@@ -10,7 +10,7 @@ import java.util.*;
 public class SegmentsTableModel implements TableModel {
 
     private final String[] COLUMN_NAMES = {
-            "Segmento", "Ferma?"
+            "Segmento", "Sequenza"
     };
 
     private java.util.List<RouteSegment> routeSegments;
@@ -38,8 +38,6 @@ public class SegmentsTableModel implements TableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 1:
-                return Boolean.class;
-            case 2:
                 return Integer.class;
         }
         return String.class;
@@ -57,8 +55,6 @@ public class SegmentsTableModel implements TableModel {
             case 0:
                 return routeSegment.getSegment();
             case 1:
-                return routeSegment.isPerformStop();
-            case 2:
                 return routeSegment.getSequence();
         }
         return null;
@@ -79,9 +75,6 @@ public class SegmentsTableModel implements TableModel {
                 }
                 break;
             case 1:
-                routeSegments.get(rowIndex).setPerformStop((Boolean) aValue);
-                break;
-            case 2:
                 routeSegments.get(rowIndex).setSequence((Integer) aValue);
                 break;
         }

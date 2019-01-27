@@ -237,7 +237,6 @@ public class EditTimetableDialog extends JDialog implements FocusListener, Actio
     }
 
     public void setModel() {
-        System.out.println("departureDateTextField.getValue() " + departureDateTextField.getValue());
         this.timetableModel.setTrain((Train) trainComboBox.getSelectedItem());
         this.timetableModel.setRoute((Route) routeComboBox.getSelectedItem());
         this.timetableModel.setScheduledDate((Date) departureDateTextField.getValue());

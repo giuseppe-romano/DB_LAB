@@ -120,3 +120,56 @@ BEGIN
     RETURN tmpDate;
 END;
 /
+
+-------------------------------------------------------------------------------------------
+/*
+  This function computes the total distance between two staions on a specific route. It returns a number in terms of Kilometers
+*/
+create or replace FUNCTION COMPUTE_DISTANCE(routeId IN NUMBER, departureStationId IN NUMBER, arrivalStationId IN NUMBER)
+RETURN NUMBER 
+IS        
+    totalDistance NUMBER;
+BEGIN    
+                            
+    SELECT SUM(sg.DISTANCE) INTO totalDistance
+        FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
+            WHERE rs.SEGMENT_ID = sg.ID
+                AND rs.ROUTE_ID = routeId
+                AND rs.SEQUENCE_NUMBER >= (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                                            WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.DEPARTURE_STATION_ID = departureStationId) 
+                AND rs.SEQUENCE_NUMBER <= (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                                            WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.ARRIVAL_STATION_ID = arrivalStationId) 
+                ORDER BY rs.SEQUENCE_NUMBER ASC;      
+        
+    RETURN totalDistance;
+END;
+/
+
+----------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION SEARCH_BOOKING (departureStationId IN NUMBER, arrivalStationId IN NUMBER, startDate IN DATE, endDate IN DATE)
+    RETURN SYS_REFCURSOR
+IS
+    resultCursor SYS_REFCURSOR;
+DECLARE
+    departureStationId NUMBER := 1;
+    arrivalStationId NUMBER := 7;
+    
+    startDate DATE := TO_DATE('01/01/2018 21:22', 'DD/MM/YYYY HH24:MI');
+    endDate DATE := TO_DATE('01/01/2029 21:22', 'DD/MM/YYYY HH24:MI');
+    
+    currentRouteId NUMBER;
+BEGIN
+    
+    FOR bookingRec IN (
+                SELECT * FROM BOOKING_VIEW a
+                    WHERE a.DEPARTURE_DATE BETWEEN startDate AND endDate
+                    ORDER BY a.ROUTE_ID, a.SEQUENCE_NUMBER ASC)
+    LOOP
+        IF currentRouteId = bookingRec.ROUTE_ID THEN
+            null;
+        END IF;
+                    
+                    DBMS_OUTPUT.PUT_LINE(bookingRec.DEPARTURE_STATION_ID);
+    END LOOP;
+END;

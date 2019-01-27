@@ -100,7 +100,6 @@ COMMENT ON COLUMN ROUTES.ACTIVE IS 'The flag indicating wether the route is well
 CREATE TABLE ROUTES_2_SEGMENTS (
      ROUTE_ID               NUMBER NOT NULL,
      SEGMENT_ID             NUMBER NOT NULL,
-     PERFORM_STOP           NUMBER(1) DEFAULT 0,
      SEQUENCE_NUMBER        NUMBER,
      IS_TERMINAL            NUMBER(1) DEFAULT 0,
      
@@ -118,7 +117,6 @@ CREATE TABLE ROUTES_2_SEGMENTS (
 COMMENT ON TABLE ROUTES_2_SEGMENTS IS 'The table modelling the many-to-many relationship between the segments and the routes';
 COMMENT ON COLUMN ROUTES_2_SEGMENTS.ROUTE_ID IS 'The foreign key pointing to route segments';
 COMMENT ON COLUMN ROUTES_2_SEGMENTS.SEGMENT_ID IS 'The foreign key pointing to routes';
-COMMENT ON COLUMN ROUTES_2_SEGMENTS.PERFORM_STOP IS 'The flag indicating wether the stop will be performed at the arrival station of that segment';
 COMMENT ON COLUMN ROUTES_2_SEGMENTS.SEQUENCE_NUMBER IS 'The sequence indicating the order of the segments which compose the route';
 COMMENT ON COLUMN ROUTES_2_SEGMENTS.IS_TERMINAL IS 'The flag indicating that the route end here. In other word, the segment is the last of the route';
 /

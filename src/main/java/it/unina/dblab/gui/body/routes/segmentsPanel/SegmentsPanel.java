@@ -121,7 +121,6 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
 
             RouteSegment newRecord = new RouteSegment();
             newRecord.setId(id);
-            newRecord.setPerformStop(true);
             newRecord.setRoute(routeModel);
             newRecord.setSequence(routeModel.getRouteSegments().size() + 1);
 
