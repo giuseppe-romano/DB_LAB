@@ -1,6 +1,5 @@
 package it.unina.dblab.gui.body.routes;
 
-
 import it.unina.dblab.models.Route;
 
 import javax.swing.*;
@@ -9,11 +8,9 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 public class RoutesCellRenderer implements TableCellRenderer, TableCellEditor {
-  //  private RouteListingComponent panel = new RouteListingComponent();
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

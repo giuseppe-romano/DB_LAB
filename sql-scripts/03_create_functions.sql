@@ -42,7 +42,7 @@ END;
 /*
   This function computes the foreseen departure date for each path 
 */
-create or replace FUNCTION COMPUTE_DEPARTURE_DATE(timeTableId IN NUMBER, departureStationId IN NUMBER)
+CREATE OR REPLACE FUNCTION COMPUTE_DEPARTURE_DATE(timeTableId IN NUMBER, departureStationId IN NUMBER)
 RETURN TIMESTAMP 
 IS
     timetableRec TIMETABLE%ROWTYPE;
@@ -84,7 +84,7 @@ END;
 /*
   This function computes the foreseen arrival date for each path 
 */
-create or replace FUNCTION COMPUTE_ARRIVAL_DATE(timeTableId IN NUMBER, arrivalStationId IN NUMBER)
+CREATE OR REPLACE FUNCTION COMPUTE_ARRIVAL_DATE(timeTableId IN NUMBER, arrivalStationId IN NUMBER)
 RETURN TIMESTAMP 
 IS
     timetableRec TIMETABLE%ROWTYPE;
@@ -125,7 +125,7 @@ END;
 /*
   This function computes the total distance between two staions on a specific route. It returns a number in terms of Kilometers
 */
-create or replace FUNCTION COMPUTE_DISTANCE(routeId IN NUMBER, departureStationId IN NUMBER, arrivalStationId IN NUMBER)
+CREATE OR REPLACE FUNCTION COMPUTE_DISTANCE(routeId IN NUMBER, departureStationId IN NUMBER, arrivalStationId IN NUMBER)
 RETURN NUMBER 
 IS        
     totalDistance NUMBER;

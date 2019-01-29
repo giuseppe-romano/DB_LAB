@@ -18,7 +18,8 @@ import java.util.Date;
                         @ColumnResult(name = "DEPARTURE_PLATFORM", type = Integer.class),
                         @ColumnResult(name = "ARRIVAL_PLATFORM", type = Integer.class),
                         @ColumnResult(name = "SEQUENCE_NUMBER", type = Integer.class),
-                        @ColumnResult(name = "IS_TERMINAL", type = boolean.class)
+                        @ColumnResult(name = "IS_TERMINAL", type = boolean.class),
+                        @ColumnResult(name = "LEVEL", type = Integer.class)
                 })
 })
 @Entity
@@ -39,7 +40,9 @@ public class SearchResult implements Serializable {
     private Integer sequence;
     private boolean terminal;
 
-    public SearchResult(Integer id, Integer departureStationId, Integer arrivalStationId, Integer trainId, Integer routeId, Integer distance, Date departureDate, Date arrivalDate, Integer departurePlatform, Integer arrivalPlatform, Integer sequence, boolean terminal) {
+    private Integer level;
+
+    public SearchResult(Integer id, Integer departureStationId, Integer arrivalStationId, Integer trainId, Integer routeId, Integer distance, Date departureDate, Date arrivalDate, Integer departurePlatform, Integer arrivalPlatform, Integer sequence, boolean terminal, Integer level) {
         this.id = id;
         this.departureStationId = departureStationId;
         this.arrivalStationId = arrivalStationId;
@@ -52,6 +55,7 @@ public class SearchResult implements Serializable {
         this.arrivalPlatform = arrivalPlatform;
         this.sequence = sequence;
         this.terminal = terminal;
+        this.level = level;
     }
 
     public Integer getId() {
@@ -148,5 +152,13 @@ public class SearchResult implements Serializable {
 
     public void setTerminal(boolean terminal) {
         this.terminal = terminal;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 }

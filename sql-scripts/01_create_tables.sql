@@ -87,7 +87,9 @@ COMMENT ON COLUMN SEGMENTS.DISTANCE IS 'The distance between the two stations. I
 CREATE TABLE ROUTES (
      ID                     NUMBER PRIMARY KEY,
      NAME                   VARCHAR2(256 BYTE) NOT NULL,
-     ACTIVE                 NUMBER(1) DEFAULT 0
+     ACTIVE                 NUMBER(1) DEFAULT 0,
+     
+     CONSTRAINT ROUTES_UK UNIQUE (NAME)
 );
 /
 COMMENT ON TABLE ROUTES IS 'The table modelling a route composed by several segments linked together';
@@ -100,7 +102,7 @@ COMMENT ON COLUMN ROUTES.ACTIVE IS 'The flag indicating wether the route is well
 CREATE TABLE ROUTES_2_SEGMENTS (
      ROUTE_ID               NUMBER NOT NULL,
      SEGMENT_ID             NUMBER NOT NULL,
-     SEQUENCE_NUMBER        NUMBER,
+     SEQUENCE_NUMBER        NUMBER(3),
      IS_TERMINAL            NUMBER(1) DEFAULT 0,
      
      CONSTRAINT FK_TO_ROUTES
@@ -130,8 +132,8 @@ CREATE TABLE TIMETABLE (
      SCHEDULED_DATE         TIMESTAMP NOT NULL,
      DEPARTURE_DATE         TIMESTAMP,
      ARRIVAL_DATE           TIMESTAMP,
-     DEPARTURE_PLATFORM     NUMBER,
-     ARRIVAL_PLATFORM       NUMBER,
+     DEPARTURE_PLATFORM     NUMBER(2),
+     ARRIVAL_PLATFORM       NUMBER(2),
      
      CONSTRAINT TIMETABLE_2_TRAINS
         FOREIGN KEY (TRAIN_ID)

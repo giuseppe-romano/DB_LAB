@@ -3,10 +3,10 @@ package it.unina.dblab.gui.body.bookings;
 import it.unina.dblab.gui.body.segments.StationListCellRenderer;
 import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
+import it.unina.dblab.models.SearchResult;
 import it.unina.dblab.models.Station;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -24,7 +24,7 @@ public class SearchCriteriaPanel extends JPanel implements FocusListener, Action
 
     private List<Station> stations = DatabaseUtil.listEntities(Station.class);
 
-    private SearchResultTableModel searchResultTableModel;
+    private JList resultList;
 
     private JComboBox<Station> departureStationComboBox;
     private JComboBox<Station> arrivalStationComboBox;
@@ -33,13 +33,13 @@ public class SearchCriteriaPanel extends JPanel implements FocusListener, Action
 
     private JButton search;
 
-    public SearchCriteriaPanel(SearchResultTableModel searchResultTableModel) {
-        this.searchResultTableModel = searchResultTableModel;
+    public SearchCriteriaPanel(JList resultList) {
+        this.resultList = resultList;
 
         Collections.sort(stations, Comparator.comparing(e -> e.getName()));
 
         this.setLayout(new GridLayout(1, 5, 16, 16));
-        this.setSize(800, 250);
+        this.setPreferredSize(new Dimension(Integer.MAX_VALUE, 60));
         this.setForeground(Color.BLUE);
 
         JPanel departureStationPanel = composeDepartureStationPanel();
@@ -58,6 +58,26 @@ public class SearchCriteriaPanel extends JPanel implements FocusListener, Action
         search = new JButton("Cerca");
         search.addActionListener(this);
         this.add(search);
+
+        Station departure = null;
+        Station arrival = null;
+        for (Station st : stations) {
+            if(st.getId() == 1) {
+                departure = st;
+            }
+            else if(st.getId() == 15) {
+                arrival = st;
+            }
+        }
+        this.departureStationComboBox.setSelectedItem(departure);
+        this.arrivalStationComboBox.setSelectedItem(arrival);
+        try {
+            this.departureDateTextField.setValue(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("01/01/2018 12:12"));
+            this.arrivalDateTextField.setValue(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("01/01/2028 12:12"));
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private JPanel composeDepartureStationPanel() {
@@ -189,7 +209,9 @@ public class SearchCriteriaPanel extends JPanel implements FocusListener, Action
             Date startDate = (Date) departureDateTextField.getValue();
             Date endDate = (Date) arrivalDateTextField.getValue();
 
-            this.searchResultTableModel.search(departureStationId, arrivalStationId, startDate, endDate);
+            List<List<SearchResult>> searchList = DatabaseUtil.searchBooking(departureStationId, arrivalStationId, startDate, endDate);
+            this.resultList.setListData(searchList.toArray());
+            this.resultList.revalidate();
         }
     }
 

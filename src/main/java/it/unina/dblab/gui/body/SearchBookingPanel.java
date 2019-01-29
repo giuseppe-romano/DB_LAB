@@ -1,19 +1,19 @@
 package it.unina.dblab.gui.body;
 
 import it.unina.dblab.gui.body.bookings.SearchCriteriaPanel;
-import it.unina.dblab.gui.body.bookings.SearchResultTableModel;
+import it.unina.dblab.gui.body.bookings.SearchResultListCellRenderer;
+import it.unina.dblab.models.SearchResult;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class SearchBookingPanel extends JPanel {
     public static final String NAME = "SEARCH_BOOKING";
 
     private BodyContainer parent;
 
-    private SearchResultTableModel searchResultTableModel = new SearchResultTableModel();
-
-    private JTable resultTable;
+    private JList resultList = new JList<List<SearchResult>>();
 
     public SearchBookingPanel(BodyContainer parent) {
         this.parent = parent;
@@ -32,7 +32,7 @@ public class SearchBookingPanel extends JPanel {
 
         this.add(titlePanel);
 
-        SearchCriteriaPanel searchCriteriaPanel = new SearchCriteriaPanel(searchResultTableModel);
+        SearchCriteriaPanel searchCriteriaPanel = new SearchCriteriaPanel(resultList);
         searchCriteriaPanel.setMaximumSize(new Dimension(1250, 90));
 
         this.add(searchCriteriaPanel);
@@ -43,17 +43,16 @@ public class SearchBookingPanel extends JPanel {
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(Color.WHITE);
-        tablePanel.setPreferredSize(new Dimension(100, 100));
+      //  tablePanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
-        resultTable = new JTable(searchResultTableModel);
-        resultTable.setOpaque(false);
-        resultTable.setPreferredScrollableViewportSize(new Dimension(1200, 570));
-        resultTable.setFillsViewportHeight(true);
-        resultTable.setRowHeight(130);
-        resultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        resultList.setOpaque(false);
+      //  resultList.setSize(new Dimension(1200, 700));
+        resultList.setFixedCellWidth(1200);
+        resultList.setVisibleRowCount(3);
+        resultList.setCellRenderer(new SearchResultListCellRenderer());
 
-
-        JScrollPane scrollPane = new JScrollPane(resultTable);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(resultList);
         tablePanel.add(scrollPane);
 
         return tablePanel;
