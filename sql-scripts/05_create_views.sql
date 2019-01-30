@@ -12,8 +12,10 @@ SELECT DISTINCT
          rs.IS_TERMINAL, 
          tt.TRAIN_ID,
          rs.SEQUENCE_NUMBER
-         FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg, TIMETABLE tt
+         FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg, TIMETABLE tt, ROUTES r
               WHERE rs.SEGMENT_ID = sg.ID
                   AND tt.ROUTE_ID = rs.ROUTE_ID
+                  AND rs.ROUTE_ID = r.ID
+                  AND r.ACTIVE = 1
         ORDER BY rs.ROUTE_ID, rs.SEQUENCE_NUMBER, DEPARTURE_DATE ASC
 /

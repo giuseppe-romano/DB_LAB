@@ -4,10 +4,7 @@ import it.unina.dblab.models.JpaEntity;
 import it.unina.dblab.models.SearchResult;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public abstract class DatabaseUtil {
 
@@ -139,19 +136,39 @@ public abstract class DatabaseUtil {
             // Begin the transaction
             transaction.begin();
 
-            Query query = manager.createNativeQuery("SELECT a.*, LEVEL " +
-                                                    "FROM BOOKING_VIEW a " +
-                                                        "START WITH a.DEPARTURE_STATION_ID = :departureStationId " +
-                                                        "CONNECT BY NOCYCLE PRIOR a.ARRIVAL_STATION_ID = a.DEPARTURE_STATION_ID " +
-                                                        "AND PRIOR a.ARRIVAL_STATION_ID != :arrivalStationId AND (LEVEL > 1 OR (a.DEPARTURE_DATE BETWEEN :startDate AND :endDate)) " +
-                                                    "ORDER SIBLINGS BY ROUTE_ID, SEQUENCE_NUMBER, DEPARTURE_DATE", "SearchResult");
+            Query query = manager.createNativeQuery("SELECT distinct a.*, :departureStationId || SYS_CONNECT_BY_PATH(a.ARRIVAL_STATION_ID, '-') AS PATHS, LEVEL" +
+                                                    "   FROM BOOKING_VIEW a" +
+                                                    "   WHERE EXISTS (SELECT 1 FROM ROUTES_2_SEGMENTS rs, " +
+                                                                                    "SEGMENTS sg " +
+                                                                                "WHERE a.ROUTE_ID = rs.ROUTE_ID " +
+                                                                                    "AND sg.ID = rs.SEGMENT_ID " +
+                                                                                    "AND (sg.DEPARTURE_STATION_ID = :departureStationId OR sg.ARRIVAL_STATION_ID = :arrivalStationId)) " +
+                                                    "   START WITH a.DEPARTURE_STATION_ID = :departureStationId AND (LEVEL > 1 OR (a.DEPARTURE_DATE BETWEEN :startDate AND :endDate)) " +
+                                                    "   CONNECT BY PRIOR a.ARRIVAL_STATION_ID = a.DEPARTURE_STATION_ID " +
+                                                    "   AND PRIOR a.DEPARTURE_STATION_ID != :arrivalStationId AND PRIOR a.ARRIVAL_DATE = a.DEPARTURE_DATE " +
+                                                    "   ORDER SIBLINGS BY a.ROUTE_ID, a.SEQUENCE_NUMBER, a.DEPARTURE_DATE DESC", "SearchResult");
+
             query.setParameter("departureStationId", departureStationId);
             query.setParameter("arrivalStationId", arrivalStationId);
             query.setParameter("startDate", startDate);
             query.setParameter("endDate", endDate);
             entities = query.getResultList();
 
-            List<List<SearchResult>> result = normalize(entities);
+            Collections.sort(entities, Comparator.comparing((SearchResult e) -> e.getLevel()).reversed());
+            int maxLevel = entities.stream()
+                    .max( Comparator.comparing( SearchResult::getLevel ) )
+                    .map(e -> e.getLevel())
+                    .get();
+
+            List<List<SearchResult>> result = new ArrayList<>();
+            for (int level = 1; level <= maxLevel; level++) {
+                List<SearchResult> specificPaths = retrievePaths(entities, level, departureStationId, arrivalStationId);
+
+                if(!specificPaths.isEmpty()) {
+                    result.addAll(normalize(specificPaths));
+                }
+            }
+
             // Commit the transaction
             transaction.commit();
 
@@ -172,71 +189,98 @@ public abstract class DatabaseUtil {
 
     private static List<List<SearchResult>> normalize(List<SearchResult> entities) {
         List<List<SearchResult>> result = new ArrayList<>();
-        List<SearchResult> list = null;
 
+        int[] duplications = calculateDuplications(entities);
+        boolean[] evens = new boolean[duplications.length];
+
+        int res = 0;
+        for (int counter : duplications) {
+            if(counter > 1) {
+                res++;
+            }
+        }
+
+        int possiblePaths = (int)Math.pow(2, res);
+        for (int i = 0; i < possiblePaths; i++) {
+            result.add(new ArrayList<>());
+        }
+
+        int alternationStep = -1;
         for (SearchResult entity : entities) {
-            if(entity.getLevel().equals(1)) {
-                if(list != null) {
-                    result.add(list);
+            if(duplications[entity.getLevel() - 1] > 1) {
+
+                boolean go = false;
+
+                boolean even = evens[entity.getLevel() - 1];
+                if(even) {
+                    go = true;
                 }
-                list = new ArrayList<>();
+                else {
+                    alternationStep++;
+                }
+                int slidingWindow = (int)Math.pow(2, alternationStep);
+
+                int counter = 0;
+                for (int i = 0; i < result.size(); i++) {
+                    if(go) {
+                        List<SearchResult> list = result.get(i);
+                        list.add(entity);
+                    }
+                    counter++;
+
+                    if(counter == slidingWindow) {
+                        counter = 0;
+                        go = !go;
+                    }
+                }
+                evens[entity.getLevel() - 1] = !even;
             }
-            list.add(entity);
-        }
-
-        if(list != null) {
-            result.add(list);
-        }
-
-        List<List<SearchResult>> flattenResult = new ArrayList<>();
-        for (List<SearchResult> resultList : result) {
-            Collections.reverse(resultList);
-
-            int pathLength = resultList.get(0).getLevel();
-
-            while (!resultList.isEmpty()) {
-                SearchResult tail = resultList.remove(0);
-                int level = tail.getLevel();
-
-                if(level == pathLength) {
-
-                    List<SearchResult> flatList = new ArrayList<>();
-                    flatList.add(tail);
-
-                    level--;
-                    for (SearchResult entity : resultList) {
-
-                        if (level == entity.getLevel()) {
-                            flatList.add(entity);
-                            level--;
-                        }
-                    }
-                    if (flatList.size() == pathLength) {
-                        Collections.reverse(flatList);
-                        flattenResult.add(flatList);
-                    }
+            else {
+                for (List<SearchResult> list : result) {
+                    list.add(entity);
                 }
             }
         }
-        return flattenResult;
+
+        for (List<SearchResult> list : result) {
+            Collections.reverse(list);
+        }
+        return result;
     }
 
-    public static void main(String [] args) {
-        SearchResult entity1 = new SearchResult(1, 1, 7, 1, 1, 200, new Date(0), new Date(), 1, 2, 1, true, 1);
-        SearchResult entity2 = new SearchResult(1, 1, 7, 1, 2, 200, new Date(0), new Date(), 1, 2, 1, true, 2);
-        SearchResult entity3 = new SearchResult(1, 7, 10, 1, 2, 200, new Date(0), new Date(), 1, 2, 1, true, 2);
-        SearchResult entity4 = new SearchResult(1, 1, 10, 1, 3, 200, new Date(0), new Date(), 1, 2, 1, true, 1);
-        SearchResult entity5 = new SearchResult(1, 1, 7, 1, 4, 200, new Date(0), new Date(), 1, 2, 1, true, 2);
-        SearchResult entity6 = new SearchResult(1, 7, 10, 1, 4, 200, new Date(0), new Date(), 1, 2, 1, true, 2);
+    private static int[] calculateDuplications(List<SearchResult> entities) {
+        int []counters = new int[entities.size()];
+        for (SearchResult entity : entities) {
+            counters[entity.getLevel() - 1] += 1;
+        }
 
-        List<SearchResult> entities = new ArrayList<>();
-        entities.add(entity1);
-        entities.add(entity2);
-        entities.add(entity3);
-        entities.add(entity4);
-        entities.add(entity5);
-        entities.add(entity6);
+        return counters;
+    }
 
-        normalize(entities);
+    private static List<SearchResult> retrievePaths(List<SearchResult> entities, int level, int departureStationId, int arrivalStationId) {
+        List<SearchResult> result = new ArrayList<>();
+
+        String regex = "";
+        for (int i = 1; i < level; i++) {
+            regex += "(\\d+)-";
+        }
+
+        String fullPath = "";
+        String matching = departureStationId + "-" + regex + arrivalStationId;
+        for (SearchResult entity : entities) {
+            if(entity.getLevel() <= level) {
+                boolean matches = entity.getPaths().matches(matching);
+                if(matches) {
+                    fullPath = entity.getPaths();
+                    result.add(entity);
+                }
+                else if(fullPath.contains(entity.getPaths())) {
+                    result.add(entity);
+                }
+            }
+
+        }
+
+        return result;
     }
 }

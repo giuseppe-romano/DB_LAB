@@ -25,8 +25,8 @@ public class SearchResultComponent extends JPanel {
     private JScrollPane scrollPane;
 
     public SearchResultComponent() {
-        this.setLayout(new FlowLayout(FlowLayout.LEADING));
-
+        this.setLayout(new BorderLayout());
+        this.setOpaque(false);
         this.setBorder(BorderFactory.createLineBorder(Color.lightGray));
     }
 
@@ -36,18 +36,26 @@ public class SearchResultComponent extends JPanel {
 
             this.paths = paths;
 
-            this.add(composeStationPanel(true));
+            JPanel container = new JPanel();
+            container.setOpaque(false);
+            container.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+            container.add(composeStationPanel(true));
 
             ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/arrow-right.png")));
             JLabel arrow = new JLabel(image);
 
-            this.add(arrow);
+            container.add(arrow);
 
-            this.add(composeStationPanel(false));
+            container.add(composeStationPanel(false));
 
-            this.add(composeDurationPanel());
+            container.add(composeDurationPanel());
 
-            this.add(composeTrainPanel());
+            container.add(composeTrainPanel());
+
+            this.add(container, BorderLayout.CENTER);
+
+            this.add(composeIntermediateStops(), BorderLayout.SOUTH);
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -72,8 +80,7 @@ public class SearchResultComponent extends JPanel {
         panel.setLayout(new SpringLayout());
 
         panel.setAlignmentX(0);
-        panel.setOpaque(true);
-        panel.setBackground(Color.CYAN);
+        panel.setOpaque(false);
 
         JLabel departureStationLabel = new JLabel(station.getName());
         departureStationLabel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 35));
@@ -111,8 +118,7 @@ public class SearchResultComponent extends JPanel {
         panel.setLayout(new SpringLayout());
 
         panel.setAlignmentX(0);
-        panel.setOpaque(true);
-        panel.setBackground(Color.CYAN);
+        panel.setOpaque(false);
 
         ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/clock.png")));
         JLabel clock = new JLabel(image);
@@ -153,8 +159,8 @@ public class SearchResultComponent extends JPanel {
 
         for (Train train : routeTrains) {
             JPanel panel = new JPanel();
-            panel.setMinimumSize(new Dimension(330, 40));
-            panel.setPreferredSize(new Dimension(330, 40));
+            panel.setMinimumSize(new Dimension(270, 40));
+            panel.setPreferredSize(new Dimension(270, 40));
             panel.setLayout(new SpringLayout());
 
             panel.setAlignmentX(0);
@@ -162,7 +168,7 @@ public class SearchResultComponent extends JPanel {
 
 
             JLabel trainLabel = new JLabel(train.getCategory() + " (" + train.getCode() + ")");
-            trainLabel.setPreferredSize(new Dimension(150, 40));
+            trainLabel.setPreferredSize(new Dimension(140, 40));
             trainLabel.setFont(new Font("Candara", Font.BOLD, 16));
             trainLabel.setHorizontalAlignment(JLabel.CENTER);
             trainLabel.setVerticalAlignment(JLabel.CENTER);
@@ -172,7 +178,7 @@ public class SearchResultComponent extends JPanel {
 
             ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/info.png")));
             JLabel infoLabel = new JLabel(image);
-            infoLabel.setPreferredSize(new Dimension(140, 40));
+            infoLabel.setPreferredSize(new Dimension(130, 40));
             panel.add(infoLabel);
 
             //Lay out the panel.
@@ -182,6 +188,36 @@ public class SearchResultComponent extends JPanel {
                     0, 5);       //xPad, yPad
 
             container.add(panel);
+        }
+
+        return container;
+    }
+
+    private JPanel composeIntermediateStops() throws Exception {
+
+        JPanel container = new JPanel();
+        container.setOpaque(false);
+        container.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+        int currentTrainId = -1;
+        container.add(new JLabel("Ferma in:  "));
+        for (int i = 0, n = paths.size(); i < n; i++) {
+            SearchResult path = paths.get(i);
+            if(currentTrainId > 0 && currentTrainId != path.getTrainId()) {
+                JLabel label = new JLabel("Cambio");
+                label.setForeground(Color.RED);
+                container.add(label);
+
+            }
+            currentTrainId = path.getTrainId();
+
+            if(i != 0) {
+                container.add(new JLabel(" - "));
+            }
+            Station station = stations.stream().filter(st -> st.getId().equals(path.getArrivalStationId())).findFirst().get();
+            JLabel label = new JLabel(station.getName() + " (" + new SimpleDateFormat("HH:mm").format(path.getArrivalDate()) + ")");
+            label.setForeground(Color.BLUE);
+            container.add(label);
         }
 
         return container;

@@ -18,7 +18,7 @@ public class SearchBookingPanel extends JPanel {
     public SearchBookingPanel(BodyContainer parent) {
         this.parent = parent;
 
-        this.setBackground(Color.BLACK);
+        this.setBackground(Color.WHITE);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
@@ -43,16 +43,15 @@ public class SearchBookingPanel extends JPanel {
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(Color.WHITE);
-      //  tablePanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
         resultList.setOpaque(false);
-      //  resultList.setSize(new Dimension(1200, 700));
-        resultList.setFixedCellWidth(1200);
-        resultList.setVisibleRowCount(3);
+        resultList.setFixedCellWidth(1150);
+        resultList.setVisibleRowCount(5);
         resultList.setCellRenderer(new SearchResultListCellRenderer());
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(resultList);
+        scrollPane.setPreferredSize(new Dimension(1200, 580));
         tablePanel.add(scrollPane);
 
         return tablePanel;
