@@ -11,14 +11,24 @@ public abstract class DatabaseUtil {
     private static EntityManagerFactory entityManagerFactory = Persistence
             .createEntityManagerFactory("DB_LAB");
 
-    private static EntityManager manager = entityManagerFactory.createEntityManager();
+    private static EntityManager manager;
+
+    public static void setConnectionSettings(Map<String, Object> properties) {
+        entityManagerFactory = Persistence
+                .createEntityManagerFactory("DB_LAB", properties);
+
+        manager = entityManagerFactory.createEntityManager();
+    }
 
     public static <T> List<T> listEntities(Class<T> clazz) {
         return listEntities(clazz, null);
     }
 
     public static <T> List<T> listEntities(Class<T> clazz, String whereClause) {
-        List<T> entities = null;
+        List<T> entities = new ArrayList<>();
+        if(manager == null) {
+            return entities;
+        }
         EntityTransaction transaction = null;
 
         try {
@@ -143,9 +153,9 @@ public abstract class DatabaseUtil {
                                                                                 "WHERE a.ROUTE_ID = rs.ROUTE_ID " +
                                                                                     "AND sg.ID = rs.SEGMENT_ID " +
                                                                                     "AND (sg.DEPARTURE_STATION_ID = :departureStationId OR sg.ARRIVAL_STATION_ID = :arrivalStationId)) " +
-                                                    "   START WITH a.DEPARTURE_STATION_ID = :departureStationId AND (LEVEL > 1 OR (a.DEPARTURE_DATE BETWEEN :startDate AND :endDate)) " +
+                                                    "   START WITH a.DEPARTURE_STATION_ID = :departureStationId AND (a.DEPARTURE_DATE BETWEEN :startDate AND :endDate) " +
                                                     "   CONNECT BY PRIOR a.ARRIVAL_STATION_ID = a.DEPARTURE_STATION_ID " +
-                                                    "   AND PRIOR a.DEPARTURE_STATION_ID != :arrivalStationId AND PRIOR a.ARRIVAL_DATE = a.DEPARTURE_DATE " +
+                                                    "   AND PRIOR a.DEPARTURE_STATION_ID != :arrivalStationId AND PRIOR a.ARRIVAL_DATE <= a.DEPARTURE_DATE " +
                                                     "   ORDER SIBLINGS BY a.ROUTE_ID, a.SEQUENCE_NUMBER, a.DEPARTURE_DATE DESC", "SearchResult");
 
             query.setParameter("departureStationId", departureStationId);
@@ -154,21 +164,30 @@ public abstract class DatabaseUtil {
             query.setParameter("endDate", endDate);
             entities = query.getResultList();
 
-            Collections.sort(entities, Comparator.comparing((SearchResult e) -> e.getLevel()).reversed());
-            int maxLevel = entities.stream()
-                    .max( Comparator.comparing( SearchResult::getLevel ) )
-                    .map(e -> e.getLevel())
-                    .get();
-
             List<List<SearchResult>> result = new ArrayList<>();
-            for (int level = 1; level <= maxLevel; level++) {
-                List<SearchResult> specificPaths = retrievePaths(entities, level, departureStationId, arrivalStationId);
 
-                if(!specificPaths.isEmpty()) {
-                    result.addAll(normalize(specificPaths));
+            if(!entities.isEmpty()) {
+                Collections.sort(entities, Comparator.comparing((SearchResult e) -> e.getLevel()).reversed());
+                int maxLevel = entities.stream()
+                        .max(Comparator.comparing(SearchResult::getLevel))
+                        .map(e -> e.getLevel())
+                        .get();
+
+
+                for (int level = 1; level <= maxLevel; level++) {
+                    List<SearchResult> specificPaths = retrievePaths(entities, level, departureStationId, arrivalStationId);
+
+                    if (!specificPaths.isEmpty()) {
+                        List<List<SearchResult>> composePaths = normalize(specificPaths);
+                        for (List<SearchResult> paths : composePaths) {
+                            if(isValidPath(paths)) {
+                                result.add(paths);
+                            }
+                        }
+
+                    }
                 }
             }
-
             // Commit the transaction
             transaction.commit();
 
@@ -282,5 +301,21 @@ public abstract class DatabaseUtil {
         }
 
         return result;
+    }
+
+    private static boolean isValidPath(List<SearchResult> paths) {
+        if(paths.isEmpty()) {
+            return false;
+        }
+
+        long arrivalTime = -1;
+        for (SearchResult path : paths) {
+            if(arrivalTime > path.getArrivalDate().getTime()) {
+                return false;
+            }
+            arrivalTime = path.getArrivalDate().getTime();
+        }
+
+        return true;
     }
 }

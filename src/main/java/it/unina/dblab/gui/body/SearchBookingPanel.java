@@ -1,7 +1,6 @@
 package it.unina.dblab.gui.body;
 
 import it.unina.dblab.gui.body.bookings.SearchCriteriaPanel;
-import it.unina.dblab.gui.body.bookings.SearchResultListCellRenderer;
 import it.unina.dblab.models.SearchResult;
 
 import javax.swing.*;
@@ -47,7 +46,6 @@ public class SearchBookingPanel extends JPanel {
         resultList.setOpaque(false);
         resultList.setFixedCellWidth(1150);
         resultList.setVisibleRowCount(5);
-        resultList.setCellRenderer(new SearchResultListCellRenderer());
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(resultList);

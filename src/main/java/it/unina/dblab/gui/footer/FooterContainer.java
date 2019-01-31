@@ -12,7 +12,12 @@ public class FooterContainer extends JPanel {
     public FooterContainer(HeavenRail parent) {
         this.parent = parent;
 
-        this.setBackground(Color.DARK_GRAY);
+        this.setBackground(new Color(7, 51, 147));
         this.setPreferredSize(new Dimension(100, 30));
+
+        JLabel label = new JLabel("PROGETTO LABORATORIO BASI DI DATI ~ Giuseppe Romano (matr. 566/1739)");
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Candara", Font.BOLD, 16));
+        this.add(label);
     }
 }

@@ -39,8 +39,6 @@ public class EditTimetableDialog extends JDialog implements FocusListener, Actio
     private JSpinner departurePlatformSpinner;
     private JSpinner arrivalPlatformSpinner;
 
-    private JComboBox<String> optionComboBox;
-
     private JButton addButton;
     private JButton cancelButton;
 
@@ -129,26 +127,9 @@ public class EditTimetableDialog extends JDialog implements FocusListener, Actio
         arrivalPlatformLabel.setLabelFor(arrivalPlatformSpinner);
         contentPanel.add(arrivalPlatformSpinner);
 
-        int layoutRows = 5;
-        //Solo se nuovo record
-        if (this.timetableModel.getId() == null) {
-            //Opzione di ricorrenza settimanale
-            JLabel optionLabel = new JLabel("Ripeti per", JLabel.TRAILING);
-            contentPanel.add(optionLabel);
-
-            optionComboBox = new JComboBox<>(new String[]{"Solo la data specificata", "Ogni giorno della settimana", "Una volta a settimana", "Una volta al mese"});
-            optionComboBox.setSelectedIndex(0);
-            optionComboBox.setBackground(Color.WHITE);
-            optionComboBox.addFocusListener(this);
-            optionComboBox.addActionListener(this);
-            optionLabel.setLabelFor(optionComboBox);
-            contentPanel.add(optionComboBox);
-
-            layoutRows = 6;
-        }
         //Lay out the panel.
         SpringUtilities.makeCompactGrid(contentPanel,
-                layoutRows, 2, //rows, cols
+                5, 2, //rows, cols
                 6, 6,        //initX, initY
                 6, 6);       //xPad, yPad
 

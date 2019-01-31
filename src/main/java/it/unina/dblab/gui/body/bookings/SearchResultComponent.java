@@ -1,6 +1,5 @@
 package it.unina.dblab.gui.body.bookings;
 
-import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.SearchResult;
 import it.unina.dblab.models.Station;
@@ -10,21 +9,21 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.time.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SearchResultComponent extends JPanel {
-    private List<Station> stations = DatabaseUtil.listEntities(Station.class);
-    private List<Train> trains = DatabaseUtil.listEntities(Train.class);
+    private List<Station> stations;
+    private List<Train> trains;
 
     private List<SearchResult> paths;
 
-    private JPanel title;
-    private JPanel body;
-    private JScrollPane scrollPane;
+    public SearchResultComponent(List<Station> stations, List<Train> trains) {
+        this.stations = stations;
+        this.trains = trains;
 
-    public SearchResultComponent() {
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
         this.setBorder(BorderFactory.createLineBorder(Color.lightGray));
@@ -56,38 +55,61 @@ public class SearchResultComponent extends JPanel {
             this.add(container, BorderLayout.CENTER);
 
             this.add(composeIntermediateStops(), BorderLayout.SOUTH);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private JPanel composeStationPanel(boolean departure) {
+    private JPanel composeStationPanel(boolean departure) throws Exception {
         Station station;
         SearchResult searchResult;
-        if(departure) {
+        if (departure) {
             searchResult = paths.get(0);
             station = stations.stream().filter(st -> st.getId().equals(searchResult.getDepartureStationId())).findFirst().get();
-        }
-        else {
+        } else {
             searchResult = paths.get(paths.size() - 1);
             station = stations.stream().filter(st -> st.getId().equals(searchResult.getArrivalStationId())).findFirst().get();
         }
 
         JPanel panel = new JPanel();
-        panel.setMinimumSize(new Dimension(300, 80));
-        panel.setPreferredSize(new Dimension(300, 80));
+        panel.setMinimumSize(new Dimension(300, 100));
+        panel.setPreferredSize(new Dimension(300, 100));
         panel.setLayout(new SpringLayout());
 
         panel.setAlignmentX(0);
         panel.setOpaque(false);
 
         JLabel departureStationLabel = new JLabel(station.getName());
-        departureStationLabel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 35));
+        departureStationLabel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 30));
         departureStationLabel.setFont(new Font("Candara", Font.BOLD, 18));
         departureStationLabel.setHorizontalAlignment(JLabel.CENTER);
         departureStationLabel.setVerticalAlignment(JLabel.CENTER);
         panel.add(departureStationLabel);
+
+        JPanel servicePanel = new JPanel();
+        servicePanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 22));
+        servicePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        if(station.getDisabledAccess()) {
+            ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/disabled-access.png")));
+            JLabel label = new JLabel(image);
+            label.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+            servicePanel.add(label);
+        }
+        if(station.getRestaurant()) {
+            ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/restaurant.png")));
+            JLabel label = new JLabel(image);
+            label.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+            servicePanel.add(label);
+        }
+        if(station.getTaxiService()) {
+            ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/taxi.png")));
+            JLabel label = new JLabel(image);
+            label.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+            servicePanel.add(label);
+        }
+
+        panel.add(servicePanel);
 
         Date time = departure ? searchResult.getDepartureDate() : searchResult.getArrivalDate();
 
@@ -100,7 +122,7 @@ public class SearchResultComponent extends JPanel {
 
         //Lay out the panel.
         SpringUtilities.makeCompactGrid(panel,
-                2, 1, //rows, cols
+                3, 1, //rows, cols
                 6, 6,        //initX, initY
                 0, 5);       //xPad, yPad
 
@@ -144,9 +166,9 @@ public class SearchResultComponent extends JPanel {
         return panel;
     }
 
-    private JPanel composeTrainPanel() throws Exception {
+    private JPanel composeTrainPanel() {
         Set<Train> routeTrains = new HashSet<>();
-        for(SearchResult path : paths) {
+        for (SearchResult path : paths) {
 
             Train train = trains.stream().filter(tr -> tr.getId().equals(path.getTrainId())).findFirst().get();
             routeTrains.add(train);
@@ -158,60 +180,41 @@ public class SearchResultComponent extends JPanel {
 
 
         for (Train train : routeTrains) {
-            JPanel panel = new JPanel();
-            panel.setMinimumSize(new Dimension(270, 40));
-            panel.setPreferredSize(new Dimension(270, 40));
-            panel.setLayout(new SpringLayout());
-
-            panel.setAlignmentX(0);
-            panel.setOpaque(false);
-
-
             JLabel trainLabel = new JLabel(train.getCategory() + " (" + train.getCode() + ")");
-            trainLabel.setPreferredSize(new Dimension(140, 40));
+            trainLabel.setPreferredSize(new Dimension(300, 40));
             trainLabel.setFont(new Font("Candara", Font.BOLD, 16));
             trainLabel.setHorizontalAlignment(JLabel.CENTER);
             trainLabel.setVerticalAlignment(JLabel.CENTER);
-            panel.add(trainLabel);
 
-
-
-            ImageIcon image = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("icons/info.png")));
-            JLabel infoLabel = new JLabel(image);
-            infoLabel.setPreferredSize(new Dimension(130, 40));
-            panel.add(infoLabel);
-
-            //Lay out the panel.
-            SpringUtilities.makeCompactGrid(panel,
-                    1, 2, //rows, cols
-                    6, 6,        //initX, initY
-                    0, 5);       //xPad, yPad
-
-            container.add(panel);
+            container.add(trainLabel);
         }
 
         return container;
     }
 
-    private JPanel composeIntermediateStops() throws Exception {
+    private JPanel composeIntermediateStops() {
 
         JPanel container = new JPanel();
         container.setOpaque(false);
         container.setLayout(new FlowLayout(FlowLayout.LEADING));
 
         int currentTrainId = -1;
+        long currentArrivalTime = -1;
         container.add(new JLabel("Ferma in:  "));
         for (int i = 0, n = paths.size(); i < n; i++) {
             SearchResult path = paths.get(i);
-            if(currentTrainId > 0 && currentTrainId != path.getTrainId()) {
-                JLabel label = new JLabel("Cambio");
+            if (currentTrainId > 0 && currentTrainId != path.getTrainId()) {
+                long waitingTime = path.getDepartureDate().getTime() - currentArrivalTime;
+
+                JLabel label = new JLabel("Cambio (Attesa di: " + new SimpleDateFormat("HH:mm").format(new Date(waitingTime)) + ")");
                 label.setForeground(Color.RED);
                 container.add(label);
 
             }
             currentTrainId = path.getTrainId();
+            currentArrivalTime = path.getArrivalDate().getTime() + (1000 * 60 * 60);
 
-            if(i != 0) {
+            if (i != 0) {
                 container.add(new JLabel(" - "));
             }
             Station station = stations.stream().filter(st -> st.getId().equals(path.getArrivalStationId())).findFirst().get();

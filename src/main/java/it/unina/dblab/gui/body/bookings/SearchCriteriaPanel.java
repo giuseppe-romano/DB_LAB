@@ -5,6 +5,7 @@ import it.unina.dblab.gui.utility.DatabaseUtil;
 import it.unina.dblab.gui.utility.SpringUtilities;
 import it.unina.dblab.models.SearchResult;
 import it.unina.dblab.models.Station;
+import it.unina.dblab.models.Train;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -225,6 +226,11 @@ public class SearchCriteriaPanel extends JPanel implements FocusListener, Action
 
             List<List<SearchResult>> searchList = DatabaseUtil.searchBooking(departureStationId, arrivalStationId, startDate, endDate);
             this.resultList.setListData(searchList.toArray());
+
+            List<Station> stations = DatabaseUtil.listEntities(Station.class);
+            List<Train> trains = DatabaseUtil.listEntities(Train.class);
+            this.resultList.setCellRenderer(new SearchResultListCellRenderer(stations, trains));
+
             this.resultList.revalidate();
         }
     }
