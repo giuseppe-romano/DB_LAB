@@ -187,6 +187,7 @@ public class LoginScreen extends JPanel implements ActionListener {
 
             ((CardLayout) contentPane.getLayout()).show(contentPane, "CONTENT");
         } catch (Exception ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Errore di connessione", JOptionPane.ERROR_MESSAGE);
         }
     }
