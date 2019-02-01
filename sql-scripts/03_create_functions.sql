@@ -18,7 +18,7 @@ BEGIN
     FOR rec IN (
         SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
             WHERE rs.SEGMENT_ID = sg.ID
-                AND rs.ROUTE_ID = 2
+                AND rs.ROUTE_ID = routeId
                 ORDER BY rs.SEQUENCE_NUMBER ASC)
     LOOP 
         IF firstRow = 0 THEN

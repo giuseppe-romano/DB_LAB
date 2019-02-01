@@ -2,12 +2,14 @@ package it.unina.dblab.gui.body.routes;
 
 import it.unina.dblab.models.Route;
 import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Station;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class RouteListingComponent extends JPanel {
@@ -39,7 +41,23 @@ public class RouteListingComponent extends JPanel {
         title1.setBackground(invalidColor);
         title1.setLayout(new FlowLayout(FlowLayout.LEADING));
         title1.add(new JLabel(route.getName()));
-        title1.add(new JLabel("(Effettua " + (route.getRouteSegments().size() - 1) + " fermate)"));
+
+        Station firstStation = route.getRouteSegments()
+                .stream()
+                .min(Comparator.comparing(RouteSegment::getSequence))
+                .get().getSegment().getDepartureStation();
+
+        Station lastStation = route.getRouteSegments()
+                .stream()
+                .max(Comparator.comparing(RouteSegment::getSequence))
+                .get().getSegment().getArrivalStation();
+        title1.add(new JLabel("(" + firstStation.getName() + " - " + lastStation.getName() + ")"));
+        if(route.getRouteSegments().size() > 1) {
+            title1.add(new JLabel("(Effettua " + (route.getRouteSegments().size() - 1) + " fermate)"));
+        }
+        else {
+            title1.add(new JLabel("(Diretto)"));
+        }
         title.add(title1);
 
         JPanel title2 = new JPanel();

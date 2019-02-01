@@ -129,6 +129,9 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
                     JOptionPane.showMessageDialog(this, errorMessage, "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
 
                 }
+                catch (IllegalStateException iex) {
+                    JOptionPane.showMessageDialog(this, iex.getMessage(), "Violazione del vincolo", JOptionPane.ERROR_MESSAGE);
+                }
             } else {
                 this.setVisible(false);
             }

@@ -87,6 +87,7 @@ public class SearchResultComponent extends JPanel {
         panel.add(departureStationLabel);
 
         JPanel servicePanel = new JPanel();
+        servicePanel.setOpaque(false);
         servicePanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 22));
         servicePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 
@@ -198,9 +199,12 @@ public class SearchResultComponent extends JPanel {
         container.setOpaque(false);
         container.setLayout(new FlowLayout(FlowLayout.LEADING));
 
+        Date departureDate = paths.get(0).getDepartureDate();
+        container.add(new JLabel("In data: " +  new SimpleDateFormat("dd/MM/yyyy").format(departureDate)));
+
         int currentTrainId = -1;
         long currentArrivalTime = -1;
-        container.add(new JLabel("Ferma in:  "));
+        container.add(new JLabel(" - Ferma in:  "));
         for (int i = 0, n = paths.size(); i < n; i++) {
             SearchResult path = paths.get(i);
             if (currentTrainId > 0 && currentTrainId != path.getTrainId()) {

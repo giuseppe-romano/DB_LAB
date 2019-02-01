@@ -180,6 +180,21 @@ SELECT distinct a.*, 7 || SYS_CONNECT_BY_PATH(a.ARRIVAL_STATION_ID, '-') AS PATH
    
    
    
+  
+   
+   
+SELECT distinct a.*, 1 || SYS_CONNECT_BY_PATH(a.ARRIVAL_STATION_ID, '-') AS PATHS, LEVEL
+                                                    FROM BOOKING_VIEW a
+                                                    WHERE EXISTS (SELECT 1 FROM ROUTES_2_SEGMENTS rs, 
+                                                                                    SEGMENTS sg
+                                                                                WHERE a.ROUTE_ID = rs.ROUTE_ID 
+                                                                                    AND sg.ID = rs.SEGMENT_ID 
+                                                                                    AND (sg.DEPARTURE_STATION_ID = 1 OR sg.ARRIVAL_STATION_ID = 15)) 
+                                                    AND a.DEPARTURE_STATION_ID != 15 
+                                                    START WITH a.DEPARTURE_STATION_ID = 1 AND (a.DEPARTURE_DATE BETWEEN TO_DATE('01/01/2018 12:12', 'DD/MM/YYYY HH24:MI') AND TO_DATE('01/01/2028 12:12', 'DD/MM/YYYY HH24:MI'))
+                                                    CONNECT BY PRIOR a.ARRIVAL_STATION_ID = a.DEPARTURE_STATION_ID 
+                                            --        AND PRIOR a.ARRIVAL_DATE <= a.DEPARTURE_DATE 
+                                                  --  ORDER SIBLINGS BY a.ROUTE_ID, a.SEQUENCE_NUMBER, a.DEPARTURE_DATE DESC
    
    
    

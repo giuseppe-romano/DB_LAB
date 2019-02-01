@@ -89,14 +89,9 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
         col.setCellEditor(new DefaultCellEditor(segmentCombobox));
 
 
-        //column Ferma in stazione?
+        //column Sequenza
         col = segmentsTable.getColumnModel().getColumn(1);
         col.setMaxWidth(220);
-//
-//        //column Sequenza
-//        col = segmentsTable.getColumnModel().getColumn(2);
-//        col.setMinWidth(100);
-//        col.setMaxWidth(100);
 
         JScrollPane scrollPane = new JScrollPane(segmentsTable);
         this.add(scrollPane);
@@ -165,5 +160,9 @@ public class SegmentsPanel extends JPanel implements ActionListener, DocumentLis
 
         segmentsTable.revalidate();
         segmentsTable.repaint();
+    }
+
+    public JTable getSegmentsTable() {
+        return this.segmentsTable;
     }
 }

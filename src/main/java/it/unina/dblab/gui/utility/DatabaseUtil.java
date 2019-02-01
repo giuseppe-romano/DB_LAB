@@ -138,7 +138,7 @@ public abstract class DatabaseUtil {
     public static List<List<SearchResult>> searchBooking(Integer departureStationId, Integer arrivalStationId, Date startDate, Date endDate) {
         EntityManager manager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = null;
-        List<SearchResult> entities = null;
+        List<SearchResult> entities;
 
         try {
             // Get a transaction
@@ -153,9 +153,9 @@ public abstract class DatabaseUtil {
                                                                                 "WHERE a.ROUTE_ID = rs.ROUTE_ID " +
                                                                                     "AND sg.ID = rs.SEGMENT_ID " +
                                                                                     "AND (sg.DEPARTURE_STATION_ID = :departureStationId OR sg.ARRIVAL_STATION_ID = :arrivalStationId)) " +
+                                                    "   AND a.DEPARTURE_STATION_ID != :arrivalStationId " +
                                                     "   START WITH a.DEPARTURE_STATION_ID = :departureStationId AND (a.DEPARTURE_DATE BETWEEN :startDate AND :endDate) " +
                                                     "   CONNECT BY PRIOR a.ARRIVAL_STATION_ID = a.DEPARTURE_STATION_ID " +
-                                                    "   AND PRIOR a.DEPARTURE_STATION_ID != :arrivalStationId AND PRIOR a.ARRIVAL_DATE <= a.DEPARTURE_DATE " +
                                                     "   ORDER SIBLINGS BY a.ROUTE_ID, a.SEQUENCE_NUMBER, a.DEPARTURE_DATE DESC", "SearchResult");
 
             query.setParameter("departureStationId", departureStationId);
@@ -166,12 +166,39 @@ public abstract class DatabaseUtil {
 
             List<List<SearchResult>> result = new ArrayList<>();
 
+            int factorial = fattorial(entities.size());
+            for (int i = 0; i < factorial; i++) {
+                result.add(new ArrayList<>());
+            }
+
+
+            int maxLevel = entities.stream()
+                    .max(Comparator.comparing(SearchResult::getLevel))
+                    .map(e -> e.getLevel())
+                    .get();
+
+            for (int level = 1; level <= maxLevel; level++) {
+                for (SearchResult entity : entities) {
+                    if (entity.getLevel() == level) {
+                        for (List<SearchResult> list : result) {
+                            list.add(entity);
+                        }
+                    }
+                }
+            }
+
             if(!entities.isEmpty()) {
-                Collections.sort(entities, Comparator.comparing((SearchResult e) -> e.getLevel()).reversed());
-                int maxLevel = entities.stream()
-                        .max(Comparator.comparing(SearchResult::getLevel))
-                        .map(e -> e.getLevel())
-                        .get();
+                Collections.sort(entities, Comparator.comparing((SearchResult e) -> e.getPaths()).reversed());
+
+                for (SearchResult entity : entities) {
+                    if(isDirect(entity, departureStationId, arrivalStationId)) {
+                        List<SearchResult> list = new ArrayList<>();
+                        list.add(entity);
+                        result.add(list);
+
+                        entities.remove(entity);
+                    }
+                }
 
 
                 for (int level = 1; level <= maxLevel; level++) {
@@ -184,7 +211,6 @@ public abstract class DatabaseUtil {
                                 result.add(paths);
                             }
                         }
-
                     }
                 }
             }
@@ -297,10 +323,26 @@ public abstract class DatabaseUtil {
                     result.add(entity);
                 }
             }
-
         }
 
         return result;
+    }
+
+    private static boolean canBeConsecutives(SearchResult first, SearchResult last) {
+        boolean result = true;
+
+        //Dates not consecutives
+        if(first.getArrivalDate().getTime() > last.getDepartureDate().getTime()) {
+            result = false;
+        }
+        else if(first.getArrivalStationId() != last.getDepartureStationId()) {
+            result = false;
+        }
+        return result;
+    }
+
+    private static boolean isDirect(SearchResult searchResult, int departureStationId, int arrivalStationId) {
+        return searchResult != null && searchResult.getDepartureStationId() == departureStationId && searchResult.getArrivalStationId() == arrivalStationId;
     }
 
     private static boolean isValidPath(List<SearchResult> paths) {
@@ -317,5 +359,15 @@ public abstract class DatabaseUtil {
         }
 
         return true;
+    }
+
+    private static int fattorial(int n) {
+        int f = 1;
+
+        for(int i = 1; i <= n; i++) {
+            f=f*i;
+        }
+
+        return f;
     }
 }
