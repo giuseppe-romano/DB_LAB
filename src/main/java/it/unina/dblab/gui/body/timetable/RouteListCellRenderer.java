@@ -1,10 +1,12 @@
 package it.unina.dblab.gui.body.timetable;
 
 import it.unina.dblab.models.Route;
-import it.unina.dblab.models.Train;
+import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Station;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Comparator;
 
 public class RouteListCellRenderer extends JLabel implements ListCellRenderer<Route> {
 
@@ -17,7 +19,17 @@ public class RouteListCellRenderer extends JLabel implements ListCellRenderer<Ro
     public Component getListCellRendererComponent(JList<? extends Route> list, Route value, int index, boolean isSelected, boolean cellHasFocus) {
         setText("");
         if (value != null) {
-            setText(value.getName());
+            Station firstStation = value.getRouteSegments()
+                    .stream()
+                    .min(Comparator.comparing(RouteSegment::getSequence))
+                    .get().getSegment().getDepartureStation();
+
+            Station lastStation = value.getRouteSegments()
+                    .stream()
+                    .max(Comparator.comparing(RouteSegment::getSequence))
+                    .get().getSegment().getArrivalStation();
+
+            setText(value.getName() + " (" + firstStation.getName() + " - " + lastStation.getName() + ")");
         }
 
         Color background;

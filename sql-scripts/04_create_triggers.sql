@@ -8,7 +8,9 @@
 CREATE OR REPLACE TRIGGER CHECK_ROUTE_LINKING_AIUD
 AFTER INSERT OR UPDATE OR DELETE
    ON ROUTES_2_SEGMENTS
+   FOR EACH ROW
 DECLARE
+    
    -- variable declarations
     arrivalStationId NUMBER;
     departureStationId NUMBER;
@@ -16,19 +18,17 @@ DECLARE
     
     lastRouteSegmentId NUMBER;
 BEGIN
-    --Loops on each distinct route_id
-    FOR routeSeg IN (SELECT DISTINCT ROUTE_ID FROM ROUTES_2_SEGMENTS)
-      LOOP
-          --Set the active flag to be true
+  
+      --Set the active flag to be true
+      UPDATE ROUTES
+          SET ACTIVE = 1
+          WHERE ID = :NEW.ROUTE_ID;
+          
+      --If the link between the two segments isn't correct than the route will be marked an not active
+      IF CHECK_ROUTE_LINKING(:NEW.ROUTE_ID) = 1 THEN
           UPDATE ROUTES
-              SET ACTIVE = 1
-              WHERE ID = routeSeg.ROUTE_ID;
-              
-          --If the link between the two segments isn't correct than the route will be marked an not active
-          IF CHECK_ROUTE_LINKING(routeSeg.ROUTE_ID) = 1 THEN
-              UPDATE ROUTES
-                SET ACTIVE = 0 --false
-                WHERE ID = routeSeg.ROUTE_ID;
-          END IF;              
-    END LOOP;  
+            SET ACTIVE = 0 --false
+            WHERE ID = :NEW.ROUTE_ID;
+      END IF;              
+  
 END;

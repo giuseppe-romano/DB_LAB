@@ -19,7 +19,6 @@ import java.util.Date;
                         @ColumnResult(name = "ARRIVAL_PLATFORM", type = Integer.class),
                         @ColumnResult(name = "SEQUENCE_NUMBER", type = Integer.class),
                         @ColumnResult(name = "IS_TERMINAL", type = boolean.class),
-                        @ColumnResult(name = "PATHS", type = String.class),
                         @ColumnResult(name = "LEVEL", type = Integer.class)
                 })
 })
@@ -40,10 +39,9 @@ public class SearchResult implements Serializable {
     private Integer sequence;
     private boolean terminal;
 
-    private String paths;
     private Integer level;
 
-    public SearchResult(Integer id, Integer departureStationId, Integer arrivalStationId, Integer trainId, Integer routeId, Integer distance, Date departureDate, Date arrivalDate, Integer departurePlatform, Integer arrivalPlatform, Integer sequence, boolean terminal, String paths, Integer level) {
+    public SearchResult(Integer id, Integer departureStationId, Integer arrivalStationId, Integer trainId, Integer routeId, Integer distance, Date departureDate, Date arrivalDate, Integer departurePlatform, Integer arrivalPlatform, Integer sequence, boolean terminal, Integer level) {
         this.id = id;
         this.departureStationId = departureStationId;
         this.arrivalStationId = arrivalStationId;
@@ -56,7 +54,6 @@ public class SearchResult implements Serializable {
         this.arrivalPlatform = arrivalPlatform;
         this.sequence = sequence;
         this.terminal = terminal;
-        this.paths = paths;
         this.level = level;
     }
 
@@ -162,13 +159,5 @@ public class SearchResult implements Serializable {
 
     public void setLevel(Integer level) {
         this.level = level;
-    }
-
-    public String getPaths() {
-        return paths;
-    }
-
-    public void setPaths(String paths) {
-        this.paths = paths;
     }
 }

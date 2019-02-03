@@ -10,6 +10,13 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "ROUTES")
+@NamedStoredProcedureQuery(
+        name="CHECK_ROUTE_LINKING",
+        procedureName="CHECK_ROUTE_LINKING",
+        parameters={
+                @StoredProcedureParameter(name="routeId", type=Integer.class, mode=ParameterMode.IN)
+        }
+)
 public class Route implements Serializable, JpaEntity<Route> {
 
     @Id

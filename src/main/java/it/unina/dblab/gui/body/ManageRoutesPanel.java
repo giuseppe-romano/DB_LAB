@@ -71,6 +71,7 @@ public class ManageRoutesPanel extends JPanel {
                 // setsize of dialog
                 dialog.pack();
                 dialog.setSize(550, 500);
+                dialog.setLocationRelativeTo(null);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -104,6 +105,7 @@ public class ManageRoutesPanel extends JPanel {
                     // setsize of dialog
                     dialog.pack();
                     dialog.setSize(550, 500);
+                    dialog.setLocationRelativeTo(null);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);

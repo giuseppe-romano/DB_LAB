@@ -76,6 +76,7 @@ public class ManageTrainsPanel extends JPanel {
                 // setsize of dialog
                 dialog.pack();
                 dialog.setSize(400, 220);
+                dialog.setLocationRelativeTo(null);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -106,6 +107,7 @@ public class ManageTrainsPanel extends JPanel {
                     // setsize of dialog
                     dialog.pack();
                     dialog.setSize(400, 220);
+                    dialog.setLocationRelativeTo(null);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);

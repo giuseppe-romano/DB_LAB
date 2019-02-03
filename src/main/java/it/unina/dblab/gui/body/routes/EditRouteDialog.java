@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class EditRouteDialog extends JDialog implements FocusListener, ActionListener, ChangeListener, DocumentListener {
@@ -116,6 +118,8 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
 
                     DatabaseUtil.mergeEntity(this.routeModel);
 
+                    DatabaseUtil.invokeStoredProcedureCHECK_ROUTE_LINKING(this.routeModel.getId());
+
                     this.setVisible(false);
                 } catch (RollbackException rex) {
                     String errorMessage = Optional.ofNullable(rex.getCause())
@@ -178,7 +182,12 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
     private void checkSegmentLinking(Route routeModel) {
         routeModel.setActive(true);
 
+        Integer departureStationId = routeModel.getRouteSegments().get(0).getSegment().getDepartureStation().getId();
+        List<Integer> reachedStations = new ArrayList<>();
+        reachedStations.add(departureStationId);
+
         Integer arrivalStationId = routeModel.getRouteSegments().get(0).getSegment().getArrivalStation().getId();
+        reachedStations.add(arrivalStationId);
         routeModel.getRouteSegments().get(0).setSequence(1);
         routeModel.getRouteSegments().get(0).setTerminal(false);
         for(int i = 1; i < routeModel.getRouteSegments().size(); i++) {
@@ -187,9 +196,19 @@ public class EditRouteDialog extends JDialog implements FocusListener, ActionLis
                 routeModel.setActive(false);
                 break;
             }
+
             routeModel.getRouteSegments().get(i).setSequence(i + 1);
             routeModel.getRouteSegments().get(i).setTerminal(false);
             arrivalStationId = routeModel.getRouteSegments().get(i).getSegment().getArrivalStation().getId();
+
+            for (Integer reachedStationId : reachedStations) {
+                //Cycle in the route
+                if(reachedStationId.equals(arrivalStationId)) {
+                    routeModel.setActive(false);
+                    break;
+                }
+            }
+            reachedStations.add(arrivalStationId);
         }
         //Force to stop at the end
         routeModel.getRouteSegments().get(routeModel.getRouteSegments().size() - 1).setTerminal(true);

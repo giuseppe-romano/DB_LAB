@@ -8,18 +8,16 @@
         <properties>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.jdbc.time_zone" value="UTC"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
 
             <!-- The JDBC driver of your database -->
             <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver" />
             <!-- The JDBC URL to the database instance -->
-            <property name="javax.persistence.jdbc.url" value="jdbc:oracle:thin:@//olrdev3.cc.cec.eu.int:1597/EGRFCOMD_TAF.cc.cec.eu.int" />
-            <!--<property name="javax.persistence.jdbc.url" value="jdbc:oracle:thin:@//localhost:1521/XE" />-->
+            <property name="javax.persistence.jdbc.url" value="jdbc:oracle:thin:@//localhost:1521/XE" />
             <!-- The database username -->
-            <property name="javax.persistence.jdbc.user" value="EGREFFE_DEV8" />
-            <!--<property name="javax.persistence.jdbc.user" value="db_lab" />-->
+            <property name="javax.persistence.jdbc.user" value="db_lab" />
             <!-- The database password -->
-            <property name="javax.persistence.jdbc.password" value="tegdhduer#8" />
-            <!--<property name="javax.persistence.jdbc.password" value="db_lab" />-->
+            <property name="javax.persistence.jdbc.password" value="db_lab" />
         </properties>
     </persistence-unit>
 </persistence>

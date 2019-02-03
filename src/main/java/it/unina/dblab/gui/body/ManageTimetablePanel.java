@@ -73,6 +73,7 @@ public class ManageTimetablePanel extends JPanel {
                 // setsize of dialog
                 dialog.pack();
                 dialog.setSize(550, 300);
+                dialog.setLocationRelativeTo(null);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -106,6 +107,7 @@ public class ManageTimetablePanel extends JPanel {
                     // setsize of dialog
                     dialog.pack();
                     dialog.setSize(550, 270);
+                    dialog.setLocationRelativeTo(null);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);

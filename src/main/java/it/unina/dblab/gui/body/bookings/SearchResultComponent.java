@@ -9,10 +9,13 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static java.time.temporal.ChronoUnit.*;
 
 public class SearchResultComponent extends JPanel {
     private List<Station> stations;
@@ -148,8 +151,7 @@ public class SearchResultComponent extends JPanel {
         clock.setPreferredSize(new Dimension(80, Integer.MAX_VALUE));
         panel.add(clock);
 
-        long diff = last.getArrivalDate().getTime() - first.getDepartureDate().getTime();
-
+        long diff = last.getArrivalDate().getTime() - first.getDepartureDate().getTime() - (1000 * 60 * 60);
 
         JLabel durationLabel = new JLabel(new SimpleDateFormat("HH:mm").format(new Date(diff)));
         durationLabel.setPreferredSize(new Dimension(120, Integer.MAX_VALUE));
@@ -204,25 +206,32 @@ public class SearchResultComponent extends JPanel {
 
         int currentTrainId = -1;
         long currentArrivalTime = -1;
-        container.add(new JLabel(" - Ferma in:  "));
-        for (int i = 0, n = paths.size(); i < n; i++) {
-            SearchResult path = paths.get(i);
-            if (currentTrainId > 0 && currentTrainId != path.getTrainId()) {
-                long waitingTime = path.getDepartureDate().getTime() - currentArrivalTime;
+        if(paths.size() > 1) {
+            container.add(new JLabel("- Ferma in:  "));
+            for (int i = 0, n = paths.size(); i < n; i++) {
+                SearchResult path = paths.get(i);
+                if (currentTrainId > 0 && currentTrainId != path.getTrainId()) {
+                    long waitingTime = path.getDepartureDate().getTime() - currentArrivalTime;
 
-                JLabel label = new JLabel("Cambio (Attesa di: " + new SimpleDateFormat("HH:mm").format(new Date(waitingTime)) + ")");
-                label.setForeground(Color.RED);
+                    JLabel label = new JLabel("Cambio (Attesa di: " + new SimpleDateFormat("HH:mm").format(new Date(waitingTime)) + ")");
+                    label.setForeground(Color.RED);
+                    container.add(label);
+
+                }
+                currentTrainId = path.getTrainId();
+                currentArrivalTime = path.getArrivalDate().getTime() + (1000 * 60 * 60);
+
+                if (i != 0) {
+                    container.add(new JLabel(" - "));
+                }
+                Station station = stations.stream().filter(st -> st.getId().equals(path.getArrivalStationId())).findFirst().get();
+                JLabel label = new JLabel(station.getName() + " (" + new SimpleDateFormat("HH:mm").format(path.getArrivalDate()) + ")");
+                label.setForeground(Color.BLUE);
                 container.add(label);
-
             }
-            currentTrainId = path.getTrainId();
-            currentArrivalTime = path.getArrivalDate().getTime() + (1000 * 60 * 60);
-
-            if (i != 0) {
-                container.add(new JLabel(" - "));
-            }
-            Station station = stations.stream().filter(st -> st.getId().equals(path.getArrivalStationId())).findFirst().get();
-            JLabel label = new JLabel(station.getName() + " (" + new SimpleDateFormat("HH:mm").format(path.getArrivalDate()) + ")");
+        }
+        else {
+            JLabel label = new JLabel("- Diretto");
             label.setForeground(Color.BLUE);
             container.add(label);
         }

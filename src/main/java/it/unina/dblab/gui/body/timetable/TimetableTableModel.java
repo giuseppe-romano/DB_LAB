@@ -1,6 +1,8 @@
 package it.unina.dblab.gui.body.timetable;
 
 import it.unina.dblab.gui.utility.DatabaseUtil;
+import it.unina.dblab.models.RouteSegment;
+import it.unina.dblab.models.Station;
 import it.unina.dblab.models.Timetable;
 
 import javax.swing.table.DefaultTableModel;
@@ -75,7 +77,17 @@ public class TimetableTableModel extends DefaultTableModel {
             case 1:
                 return timetable.getTrain().getCategory() + "(" + timetable.getTrain().getCode() + ")";
             case 2:
-                return timetable.getRoute().getName();
+                Station firstStation = timetable.getRoute().getRouteSegments()
+                        .stream()
+                        .min(Comparator.comparing(RouteSegment::getSequence))
+                        .get().getSegment().getDepartureStation();
+
+                Station lastStation = timetable.getRoute().getRouteSegments()
+                        .stream()
+                        .max(Comparator.comparing(RouteSegment::getSequence))
+                        .get().getSegment().getArrivalStation();
+
+                return timetable.getRoute().getName() + " (" + firstStation.getName() + " - " + lastStation.getName() + ")";
             case 3:
                 return timetable.getScheduledDate();
             case 4:

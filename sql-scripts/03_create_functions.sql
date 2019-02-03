@@ -3,38 +3,76 @@
   The route is composed by several segments where the arrival station of the segment i must be
   an departure station of the segment i + 1.
 */
-CREATE OR REPLACE FUNCTION CHECK_ROUTE_LINKING(routeId IN NUMBER)
-RETURN NUMBER 
+CREATE OR REPLACE PROCEDURE CHECK_ROUTE_LINKING(routeId IN NUMBER)
 IS
    -- variable declarations
     reachedStationId NUMBER;
     firstRow INTEGER;
-    
+
+    TYPE varray_number IS VARRAY(100) OF NUMBER (3); 
+
+    reachedStations varray_number := varray_number();
+    counter integer := 0; 
+
     ret NUMBER := 0;
 BEGIN
-              
+
     firstRow := 1;
-    
+
     FOR rec IN (
         SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
             WHERE rs.SEGMENT_ID = sg.ID
                 AND rs.ROUTE_ID = routeId
                 ORDER BY rs.SEQUENCE_NUMBER ASC)
     LOOP 
-        IF firstRow = 0 THEN
-            --If the link between the two segments isn't correct than the function returns 1
-            IF reachedStationId <> rec.DEPARTURE_STATION_ID THEN
-                ret := 1;
-                EXIT;
-            END IF;
+        counter := counter + 1;
+        
+        IF firstRow = 1 THEN
+            reachedStations.EXTEND;
+            reachedStations(counter) := rec.DEPARTURE_STATION_ID;
+            counter := counter + 1;
+            
+            reachedStationId := rec.DEPARTURE_STATION_ID;
+            
         END IF;
+        
+        FOR l_row IN 1 .. reachedStations.COUNT  
+           LOOP  
+                IF rec.ARRIVAL_STATION_ID = reachedStations(l_row) THEN
+                    ret := 1;
+                END IF;
+           END LOOP;  
+        
+        
+        --If the link between the two segments isn't correct than the function returns 1
+        IF reachedStationId <> rec.DEPARTURE_STATION_ID THEN
+            ret := 1;
+        END IF;
+        
+        EXIT WHEN ret = 1;
         
         reachedStationId := rec.ARRIVAL_STATION_ID;
         firstRow := 0;
+        
+        reachedStations.EXTEND;
+        reachedStations(counter) := reachedstationid;
+
 
     END LOOP;
     
-    RETURN ret;
+    --Set the active flag to be true
+    UPDATE ROUTES
+      SET ACTIVE = 1
+      WHERE ID = routeId;
+          
+      --If the link between the two segments isn't correct than the route will be marked an not active
+      IF ret = 1 THEN
+          UPDATE ROUTES
+            SET ACTIVE = 0 --false
+            WHERE ID = routeId;
+      END IF;       
+      
+      COMMIT;
 END;
 /
 
@@ -66,11 +104,11 @@ BEGIN
         SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
             WHERE rs.SEGMENT_ID = sg.ID
                 AND rs.ROUTE_ID = timetableRec.ROUTE_ID
-                AND rs.SEQUENCE_NUMBER < (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                AND rs.SEQUENCE_NUMBER < (SELECT MAX(rs2.SEQUENCE_NUMBER) FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
                                             WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.DEPARTURE_STATION_ID = departureStationId) 
                 ORDER BY rs.SEQUENCE_NUMBER ASC)
     LOOP
-        --This formula adds the time needed for the that distance with that train speed
+        --This formula adds the time needed for that distance according to the specific train speed
         tmpDate := tmpDate + (segmentRec.DISTANCE / trainSpeed)/24;
            
     END LOOP;
@@ -108,7 +146,7 @@ BEGIN
         SELECT sg.* FROM ROUTES_2_SEGMENTS rs, SEGMENTS sg
             WHERE rs.SEGMENT_ID = sg.ID
                 AND rs.ROUTE_ID = timetableRec.ROUTE_ID
-                AND rs.SEQUENCE_NUMBER <= (SELECT rs2.SEQUENCE_NUMBER FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
+                AND rs.SEQUENCE_NUMBER <= (SELECT MAX(rs2.SEQUENCE_NUMBER) FROM ROUTES_2_SEGMENTS rs2, SEGMENTS sg2
                                             WHERE rs2.ROUTE_ID = rs.ROUTE_ID AND rs2.SEGMENT_ID = sg2.ID AND sg2.ARRIVAL_STATION_ID = arrivalStationId) 
                 ORDER BY rs.SEQUENCE_NUMBER ASC)
     LOOP
@@ -144,32 +182,3 @@ BEGIN
     RETURN totalDistance;
 END;
 /
-
-----------------------------------------------------------------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION SEARCH_BOOKING (departureStationId IN NUMBER, arrivalStationId IN NUMBER, startDate IN DATE, endDate IN DATE)
-    RETURN SYS_REFCURSOR
-IS
-    resultCursor SYS_REFCURSOR;
-DECLARE
-    departureStationId NUMBER := 1;
-    arrivalStationId NUMBER := 7;
-    
-    startDate DATE := TO_DATE('01/01/2018 21:22', 'DD/MM/YYYY HH24:MI');
-    endDate DATE := TO_DATE('01/01/2029 21:22', 'DD/MM/YYYY HH24:MI');
-    
-    currentRouteId NUMBER;
-BEGIN
-    
-    FOR bookingRec IN (
-                SELECT * FROM BOOKING_VIEW a
-                    WHERE a.DEPARTURE_DATE BETWEEN startDate AND endDate
-                    ORDER BY a.ROUTE_ID, a.SEQUENCE_NUMBER ASC)
-    LOOP
-        IF currentRouteId = bookingRec.ROUTE_ID THEN
-            null;
-        END IF;
-                    
-                    DBMS_OUTPUT.PUT_LINE(bookingRec.DEPARTURE_STATION_ID);
-    END LOOP;
-END;

@@ -71,6 +71,7 @@ public class ManageSegmentsPanel extends JPanel {
                 // setsize of dialog
                 dialog.pack();
                 dialog.setSize(450, 200);
+                dialog.setLocationRelativeTo(null);
                 dialog.setResizable(false);
                 // set visibility of dialog
                 dialog.setVisible(true);
@@ -101,6 +102,7 @@ public class ManageSegmentsPanel extends JPanel {
                     // setsize of dialog
                     dialog.pack();
                     dialog.setSize(450, 200);
+                    dialog.setLocationRelativeTo(null);
                     dialog.setResizable(false);
                     // set visibility of dialog
                     dialog.setVisible(true);
