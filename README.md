@@ -1,6 +1,15 @@
 # Heaven's Rail 
 Progettazione e sviluppo di una base di dati relazionale per la gestione di un sistema ferroviario.
 
+## Installare lo schema DB
+    Gli script sql per la creazione del DB sono organizzati nella directory sql-scripts.
+    
+    1. Utilizzando sqlplus a riga di comando o Sql Developer, eseguire lo script:
+        > ./sql-scripts/create_database.sql
+        
+        Verificare che non vi siano errori.
+     
+
 ## Compilare i sorgenti
 
 ### 1. Prerequisiti di sistema 

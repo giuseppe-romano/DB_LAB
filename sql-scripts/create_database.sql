@@ -1,8 +1,7 @@
 @./01_create_tables.sql;
 @./02_create_sequences.sql;
 @./03_create_functions.sql;
---@./04_create_triggers.sql;
-@./05_create_views.sql;
+@./04_create_views.sql;
 
 --DML
 @./20_insert_trains.sql;
