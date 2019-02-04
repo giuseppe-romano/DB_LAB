@@ -10,7 +10,7 @@ Progettazione e sviluppo di una base di dati relazionale per la gestione di un s
         Verificare che non vi siano errori.
      
 
-## Compilare i sorgenti
+## Compilare i sorgenti con maven
 
 ### 1. Prerequisiti di sistema 
 
@@ -28,3 +28,15 @@ Progettazione e sviluppo di una base di dati relazionale per la gestione di un s
     3. Avviare l'applicazione
         > java -jar target/heaven-rail-1.0-jar-with-dependencies.jar
 
+
+## Compilare i sorgenti con IDE (Netbeans, IntelliJ, etc)
+
+### 1. Prerequisiti di sistema 
+
+    # JDK version 8
+    
+    1. Aprire il progetto selezionando il file pom.xml
+    
+    2. Configurare il classpath con il driver jdbc (nella directory /jdbc)
+    
+    3. Eseguire l'applicazione con il pulsante "Run" 
