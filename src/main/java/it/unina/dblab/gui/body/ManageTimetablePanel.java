@@ -52,7 +52,7 @@ public class ManageTimetablePanel extends JPanel {
         panel.setBackground(new Color(211, 212, 222, 255));
         panel.setLayout(new GridLayout(10, 1));
 
-        LeftMenuButton addNewSegment = new LeftMenuButton("Aggiungi Nuova");
+        LeftMenuButton addNewSegment = new LeftMenuButton("Aggiungi Nuovo");
         addNewSegment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

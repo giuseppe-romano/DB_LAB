@@ -8,8 +8,7 @@ import java.util.*;
 
 public abstract class DatabaseUtil {
 
-    private static EntityManagerFactory entityManagerFactory = Persistence
-            .createEntityManagerFactory("DB_LAB");
+    private static EntityManagerFactory entityManagerFactory;
 
     private static EntityManager manager;
 

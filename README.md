@@ -1,15 +1,21 @@
-# DB_LAB
+# Heaven's Rail 
+Progettazione e sviluppo di una base di dati relazionale per la gestione di un sistema ferroviario.
 
-# Compilare i sorgenti
+## Compilare i sorgenti
 
-## Prerequisiti di sistema
+### 1. Prerequisiti di sistema 
 
-    JDK version 8
-    Maven version 3.x
+    # JDK version 8
+    # Maven version 3.x
 
-    1. Installare i driver jdbc nel repository maven
-        mvn install:install-file -Dfile=jdbc/ojdbc8.jar -DgroupId=com.oracle -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar
+### 2. Passi da eseguire
 
-    2. Compilare ed impacchettare l'artefatto
-        mvn clean install
+    1. Installare i driver jdbc nel repository locale di maven
+        > mvn install:install-file -Dfile=jdbc/ojdbc8.jar -DgroupId=com.oracle -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar
+
+    2. Compilare il progetto
+        > mvn clean install
+        
+    3. Avviare l'applicazione
+        > java -jar target/heaven-rail-1.0-jar-with-dependencies.jar
 

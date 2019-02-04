@@ -148,12 +148,6 @@ public class LoginScreen extends JPanel implements ActionListener {
         this.databaseServiceTextField.setText("XE");
         this.databaseUserTextField.setText("db_lab");
         this.databasePasswordTextField.setText("db_lab");
-//
-//        this.databaseHostTextField.setText("olrdev3.cc.cec.eu.int");
-//        this.databasePortTextField.setText("1597");
-//        this.databaseServiceTextField.setText("EGRFCOMD_TAF.cc.cec.eu.int");
-//        this.databaseUserTextField.setText("EGREFFE_DEV8");
-//        this.databasePasswordTextField.setText("tegdhduer#8");
     }
 
     @Override
